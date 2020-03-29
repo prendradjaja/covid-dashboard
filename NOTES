@@ -1,0 +1,37 @@
+. find a scatter plot d3 example
+. can it do a multiple "lines"?
+. can it do a log scale?
+
+MVP
+- semilog plot based on coronadatascraper
+- hover? to see value of each data point
+- set graph bounds (min/max for x and y axis)
+- multiple graphs
+
+P1
+- graphs are defined by url params
+- compare to other regions
+    - shift dates to line things up
+    - show&hide different regions' graphs?
+    - discoverable search for different regions?
+- cases, deaths, ...
+- various data sources
+
+P2
+- toggle log scale
+- draw lines for
+    - population
+    - slopes
+- toggle "per capita"
+
+delimiters for
+- graphs      |
+- arguments   & =
+- list values ;
+
+somedomain.com/
+    locations=Alameda-County,-CA,-US;Barcelona,-Spain
+    &start_date=2020-03-01
+    &end_date=2020-06-01
+    &min=100
+    &max=10000
