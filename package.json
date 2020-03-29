@@ -21,8 +21,11 @@
     "@angular/router": "~9.1.0",
     "@types/d3": "^5.7.2",
     "@types/d3-array": "^2.0.0",
+    "@types/date-fns": "^2.6.0",
     "d3": "^5.15.0",
     "d3-array": "^2.4.0",
+    "date-fns": "^2.11.1",
+    "lodash": "^4.17.15",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
     "zone.js": "~0.10.2"
