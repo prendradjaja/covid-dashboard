@@ -3,10 +3,7 @@ import { json } from 'd3';
 import { CdsFetcherService, Foo } from './cds-fetcher.service';
 import { Series } from './multi-line-chart/multi-line-chart.component';
 
-const MY_LOCATIONS = [
-  'Alameda County, CA, USA',
-  // 'USA'
-];
+const MY_LOCATIONS = ['Alameda County, CA, USA', 'USA', 'ITA', 'JPN'];
 
 @Component({
   selector: 'app-root',

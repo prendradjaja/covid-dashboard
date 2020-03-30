@@ -1,6 +1,7 @@
 import { Component, OnInit, ElementRef, Input } from '@angular/core';
 import * as d3 from 'd3';
 import * as d3Array from 'd3-array';
+import times from 'lodash/times';
 
 export type Series = {
   name: string;
@@ -14,6 +15,7 @@ export type Series = {
 })
 export class MultiLineChartComponent implements OnInit {
   @Input() yAxisLabel: string;
+  @Input() xAxisLabel: string;
   // TODO: fix these bad assumptions:
   // - all the dates are contiguous
   // - all the serieses are of the same length & the same dates
@@ -31,41 +33,45 @@ export class MultiLineChartComponent implements OnInit {
 
     const margin = { top: 20, right: 20, bottom: 30, left: 30 };
 
-    const data = (() => {
-      const data = d3.tsvParse(rawData);
-      const columns = data.columns.slice(1);
-      return {
-        y: this.yAxisLabel,
-        series: this.data,
-        // data.map(d => ({
-        //   name: d.name.replace(/, ([\w-]+).*/, ' $1'),
-        //   values: columns.map(k => +d[k]),
-        // })),
-        dates: this.data[0].values.map((_, index) => index),
-      };
-    })();
+    const data = {
+      y: this.yAxisLabel,
+      x: this.xAxisLabel,
+      series: this.data,
+      dates: times(Math.max(...this.data.map(v => v.values.length)), Number),
+    };
     console.log(data);
 
     const y = d3
       .scaleLog()
-      // .base(10)
-      // .scaleLinear()
       .domain([2, d3.max(data.series, d => d3.max(d.values))])
       .nice()
       .range([height - margin.bottom, margin.top]);
 
     const x = d3
       .scaleLinear()
-      .domain(d3.extent(data.dates))
+
+      .domain(d3.extent(data.dates as Number[]))
       .range([margin.left, width - margin.right]);
 
     const xAxis = g =>
-      g.attr('transform', `translate(0,${height - margin.bottom})`).call(
-        d3
-          .axisBottom(x)
-          .ticks(width / 80)
-          .tickSizeOuter(0)
-      );
+      g
+        .attr('transform', `translate(0,${height - margin.bottom})`)
+        .call(
+          d3
+            .axisBottom(x)
+            .ticks(width / 80)
+            .tickSizeOuter(0)
+        )
+        .call(g =>
+          g
+            .select('.tick:last-of-type text')
+            .clone()
+            .attr('y', 30)
+            .attr('x', -70)
+            .attr('text-anchor', 'start')
+            .attr('font-weight', 'bold')
+            .text(data.x)
+        );
 
     const yAxis = g =>
       g
@@ -76,7 +82,7 @@ export class MultiLineChartComponent implements OnInit {
           g
             .select('.tick:last-of-type text')
             .clone()
-            .attr('x', 3)
+            .attr('x', 10)
             .attr('text-anchor', 'start')
             .attr('font-weight', 'bold')
             .text(data.y)
@@ -131,7 +137,7 @@ export class MultiLineChartComponent implements OnInit {
           'transform',
           `translate(${x(data.dates[i])},${y(s.values[i])})`
         );
-        dot.select('text').text(s.name);
+        dot.select('text').text(`${s.name}: ${s.values[i]}`);
       }
 
       function entered() {
@@ -168,12 +174,21 @@ export class MultiLineChartComponent implements OnInit {
         .style('mix-blend-mode', 'multiply')
         .attr('d', d => line(d.values as any));
 
+      // @ts-ignore
+      path._groups[0].forEach(node => {
+        let length = node.getTotalLength();
+        d3.select(node)
+          .attr('stroke-dasharray', length)
+          .attr('stroke-dashoffset', length)
+          .transition()
+          .duration(2000)
+          .attr('stroke-dashoffset', 0);
+      });
+
       svg.call(hover, path);
 
       return svg.node();
     }
-
-    console.log('ngoninit');
 
     this.elementRef.nativeElement.appendChild(makeChart());
   }
