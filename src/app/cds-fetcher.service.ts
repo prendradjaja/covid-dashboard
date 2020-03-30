@@ -19,10 +19,21 @@ export type CDSLocationTimeSeriesData = {
   };
 };
 
+export type Foo = {
+  // TODO name
+  date: Date;
+  daysSinceOutbreak: number;
+  active: number;
+  cases: number;
+  deaths: number;
+  recovered: number;
+  growthFactor: number;
+}[];
+
 const parseCDSDateString = dateString =>
   parse(dateString, 'yyyy-MM-dd', new Date(1984, 0, 1));
 
-const parseTimeseriesData = (tsData: CDSLocationTimeSeriesData) => {
+function parseTimeseriesData(tsData: CDSLocationTimeSeriesData): Foo {
   let dates = Object.entries(tsData.dates);
   let outbreakStartIndex = dates.findIndex(([dateString, info]) => {
     return info.cases > 10;
@@ -40,13 +51,13 @@ const parseTimeseriesData = (tsData: CDSLocationTimeSeriesData) => {
       };
     });
   return formattedDatesSinceOutbreak;
-};
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class CdsFetcherService {
-  data: Promise<any>;
+  data: Promise<{ [key: string]: Foo }>;
 
   constructor() {
     const CORONA_URL = `https://coronadatascraper.com/timeseries-byLocation.json`;

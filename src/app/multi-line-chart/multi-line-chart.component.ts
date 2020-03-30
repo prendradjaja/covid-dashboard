@@ -1,6 +1,11 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, OnInit, ElementRef, Input } from '@angular/core';
 import * as d3 from 'd3';
 import * as d3Array from 'd3-array';
+
+export type Series = {
+  name: string;
+  values: number[];
+};
 
 @Component({
   selector: 'multi-line-chart',
@@ -8,6 +13,12 @@ import * as d3Array from 'd3-array';
   styleUrls: ['./multi-line-chart.component.less'],
 })
 export class MultiLineChartComponent implements OnInit {
+  @Input() yAxisLabel: string;
+  // TODO: fix these bad assumptions:
+  // - all the dates are contiguous
+  // - all the serieses are of the same length & the same dates
+  @Input() data: Series[];
+
   constructor(private elementRef: ElementRef) {}
 
   ngOnInit(): void {
@@ -24,22 +35,13 @@ export class MultiLineChartComponent implements OnInit {
       const data = d3.tsvParse(rawData);
       const columns = data.columns.slice(1);
       return {
-        y: '% Unemployment',
-        series: [
-          {
-            name: 'Alameda County',
-            values: [1, 10, 100, 1000, 1000],
-          },
-          {
-            name: 'Sonoma County',
-            values: [2, 20, 200, 2000, 20000],
-          },
-        ],
+        y: this.yAxisLabel,
+        series: this.data,
         // data.map(d => ({
         //   name: d.name.replace(/, ([\w-]+).*/, ' $1'),
         //   values: columns.map(k => +d[k]),
         // })),
-        dates: [1, 2, 3, 4, 5],
+        dates: this.data[0].values.map((_, index) => index),
       };
     })();
     console.log(data);
