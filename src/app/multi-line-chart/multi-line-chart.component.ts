@@ -1,6 +1,7 @@
 import { Component, OnInit, ElementRef, Input } from '@angular/core';
 import * as d3 from 'd3';
 import * as d3Array from 'd3-array';
+import times from 'lodash/times';
 
 export type Series = {
   name: string;
@@ -32,33 +33,24 @@ export class MultiLineChartComponent implements OnInit {
 
     const margin = { top: 20, right: 20, bottom: 30, left: 30 };
 
-    const data = (() => {
-      const data = d3.tsvParse(rawData);
-      const columns = data.columns.slice(1);
-      return {
-        y: this.yAxisLabel,
-        x: this.xAxisLabel,
-        series: this.data,
-        // data.map(d => ({
-        //   name: d.name.replace(/, ([\w-]+).*/, ' $1'),
-        //   values: columns.map(k => +d[k]),
-        // })),
-        dates: this.data[1].values.map((_, index) => index),
-      };
-    })();
+    const data = {
+      y: this.yAxisLabel,
+      x: this.xAxisLabel,
+      series: this.data,
+      dates: times(Math.max(...this.data.map(v => v.values.length)), Number),
+    };
     console.log(data);
 
     const y = d3
       .scaleLog()
-      // .base(10)
-      // .scaleLinear()
       .domain([2, d3.max(data.series, d => d3.max(d.values))])
       .nice()
       .range([height - margin.bottom, margin.top]);
 
     const x = d3
       .scaleLinear()
-      .domain(d3.extent(data.dates))
+
+      .domain(d3.extent(data.dates as Number[]))
       .range([margin.left, width - margin.right]);
 
     const xAxis = g =>
