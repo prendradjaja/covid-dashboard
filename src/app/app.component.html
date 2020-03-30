@@ -1,8 +1,9 @@
-<!-- <img
-  src="https://cdn.dribbble.com/users/1680472/screenshots/5697390/google-loader.gif"
-/> -->
-<multi-line-chart
-  *ngIf="cdsData != null"
-  yAxisLabel="y axis title"
-  [data]="actualData">
-</multi-line-chart>
+<ng-container *ngIf="actualData == null; else dataAvailable">
+  <img src="https://cdn.dribbble.com/users/1680472/screenshots/5697390/google-loader.gif"/>
+</ng-container>
+<ng-template #dataAvailable>
+  <multi-line-chart
+    yAxisLabel="y axis title"
+    [data]="actualData">
+  </multi-line-chart>
+</ng-template>
