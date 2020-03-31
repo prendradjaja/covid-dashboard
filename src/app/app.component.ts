@@ -32,6 +32,7 @@ export class AppComponent {
         this.actualData.push({
           name: location,
           values: data[location].map(item => item.cases),
+          comments: data[location].map(item => item.date.toDateString()),
         });
       }
     });
