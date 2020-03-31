@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
 import { json } from 'd3';
-import { CdsFetcherService, Foo } from './cds-fetcher.service';
+import {
+  CdsFetcherService,
+  Foo,
+  NUM_CASES_CUTOFF,
+} from './cds-fetcher.service';
 import { Series } from './multi-line-chart/multi-line-chart.component';
 
 const MY_LOCATIONS = ['Alameda County, CA, USA', 'USA', 'ITA', 'JPN'];
@@ -24,6 +28,7 @@ export class AppComponent {
     },
   ];
   actualData: Series[];
+  numCasesCutoff = NUM_CASES_CUTOFF;
   constructor(private cdsFetcherService: CdsFetcherService) {
     cdsFetcherService.data.then(data => {
       this.cdsData = data;
