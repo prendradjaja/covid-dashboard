@@ -127,7 +127,7 @@ export class MultiLineChartComponent implements OnInit {
         // @ts-ignore
         const i = xm - data.dates[i0] > data.dates[i1] - xm ? i1 : i0;
         const s = (d3Array as any).least(data.series, d =>
-          Math.abs(d.values[i] - ym)
+          Math.abs(Math.log10(d.values[i]) - Math.log10(ym))
         );
         path
           .attr('stroke', d => (d === s ? null : '#ddd'))
