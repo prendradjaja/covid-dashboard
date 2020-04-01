@@ -185,6 +185,41 @@ export class MultiLineChartComponent implements OnInit {
           .attr('stroke-dashoffset', 0);
       });
 
+      // Grid lines
+      svg.append('g').call(g =>
+        g
+          .attr('stroke', 'black')
+          .attr('stroke-opacity', 0.1)
+          .call(g =>
+            g
+              .append('g')
+              .selectAll('line')
+              .data(
+                [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+                // x.ticks()
+              )
+              .join('line')
+              .attr('x1', d => 0.5 + x(d))
+              .attr('x2', d => 0.5 + x(d))
+              .attr('y1', margin.top)
+              .attr('y2', height - margin.bottom)
+          )
+          .call(g =>
+            g
+              .append('g')
+              .selectAll('line')
+              .data(
+                [1, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7]
+                // y.ticks()
+              )
+              .join('line')
+              .attr('y1', d => 0.5 + y(d))
+              .attr('y2', d => 0.5 + y(d))
+              .attr('x1', margin.left)
+              .attr('x2', width - margin.right)
+          )
+      );
+
       svg.call(hover, path);
 
       return svg.node();
