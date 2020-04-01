@@ -30,13 +30,15 @@ export type Foo = {
   growthFactor: number;
 }[];
 
+export const NUM_CASES_CUTOFF = 10;
+
 const parseCDSDateString = dateString =>
   parse(dateString, 'yyyy-MM-dd', new Date(1984, 0, 1));
 
 function parseTimeseriesData(tsData: CDSLocationTimeSeriesData): Foo {
   let dates = Object.entries(tsData.dates);
   let outbreakStartIndex = dates.findIndex(([dateString, info]) => {
-    return info.cases > 10;
+    return info.cases > NUM_CASES_CUTOFF;
   });
   if (outbreakStartIndex < 0) return [];
   let outBreakStartDate = parseCDSDateString(dates[outbreakStartIndex][0]);

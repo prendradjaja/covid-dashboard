@@ -6,6 +6,7 @@ import times from 'lodash/times';
 export type Series = {
   name: string;
   values: number[];
+  comments?: string[];
 };
 
 @Component({
@@ -137,7 +138,8 @@ export class MultiLineChartComponent implements OnInit {
           'transform',
           `translate(${x(data.dates[i])},${y(s.values[i])})`
         );
-        dot.select('text').text(`${s.name}: ${s.values[i]}`);
+        const comment = s.comments ? '— ' + s.comments[i] : '';
+        dot.select('text').text(`${s.name}: ${s.values[i]}${comment}`);
       }
 
       function entered() {
