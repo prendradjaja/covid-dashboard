@@ -21,10 +21,12 @@ export class MultiLineChartComponent implements OnInit {
   // - all the dates are contiguous
   // - all the serieses are of the same length & the same dates
   @Input() data: Series[];
+  @Input() animate: boolean = false;
 
   constructor(private elementRef: ElementRef) {}
 
   ngOnInit(): void {
+    let self = this;
     const rawData = `name	2000-01	2000-02	2000-03	2000-04	2000-05
     Line1 FOOBAR	200.6	2000.6	20.6	2.6	2.7
     Line2 BOOFAR	300.7	30.6	3.6	-10.5 2000.4`;
@@ -120,9 +122,11 @@ export class MultiLineChartComponent implements OnInit {
         .attr('y', -8);
 
       function moved() {
+        const boundingRect = (self.elementRef
+          .nativeElement as Element).getBoundingClientRect();
         d3.event.preventDefault();
-        const ym = y.invert(d3.event.layerY);
-        const xm = x.invert(d3.event.layerX);
+        const ym = y.invert(d3.event.layerY - boundingRect.top);
+        const xm = x.invert(d3.event.layerX - boundingRect.left);
         const i1 = d3.bisectLeft(data.dates, xm, 1);
         const i0 = i1 - 1;
         // @ts-ignore
@@ -176,16 +180,18 @@ export class MultiLineChartComponent implements OnInit {
         .style('mix-blend-mode', 'multiply')
         .attr('d', d => line(d.values as any));
 
-      // @ts-ignore
-      path._groups[0].forEach(node => {
-        let length = node.getTotalLength();
-        d3.select(node)
-          .attr('stroke-dasharray', length)
-          .attr('stroke-dashoffset', length)
-          .transition()
-          .duration(2000)
-          .attr('stroke-dashoffset', 0);
-      });
+      if (self.animate) {
+        // @ts-ignore
+        path._groups[0].forEach(node => {
+          let length = node.getTotalLength();
+          d3.select(node)
+            .attr('stroke-dasharray', length)
+            .attr('stroke-dashoffset', length)
+            .transition()
+            .duration(2000)
+            .attr('stroke-dashoffset', 0);
+        });
+      }
 
       svg.call(hover, path);
 
