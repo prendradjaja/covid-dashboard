@@ -6,6 +6,7 @@ import {
   NUM_CASES_CUTOFF,
 } from './cds-fetcher.service';
 import { Series } from './multi-line-chart/multi-line-chart.component';
+import { UrlParserService, CovidGraphDefinition } from './url-parser.service';
 
 const MY_LOCATIONS = ['Alameda County, CA, USA', 'USA', 'ITA', 'JPN'];
 
@@ -17,29 +18,29 @@ const MY_LOCATIONS = ['Alameda County, CA, USA', 'USA', 'ITA', 'JPN'];
 export class AppComponent {
   title = 'angular9covid-dashboard';
   cdsData: { [key: string]: Foo };
-  exampleData = [
-    {
-      name: 'Alameda County',
-      values: [1, 10, 100, 1000, 1000],
-    },
-    {
-      name: 'Sonoma County',
-      values: [2, 20, 200, 2000, 20000],
-    },
-  ];
-  actualData: Series[];
+  graphs: Series[][];
   numCasesCutoff = NUM_CASES_CUTOFF;
-  constructor(private cdsFetcherService: CdsFetcherService) {
+  constructor(
+    private cdsFetcherService: CdsFetcherService,
+    private urlParserService: UrlParserService
+  ) {
     cdsFetcherService.data.then(data => {
       this.cdsData = data;
-      this.actualData = [];
-      for (let location of MY_LOCATIONS) {
-        this.actualData.push({
-          name: location,
-          values: data[location].map(item => item.cases),
-          comments: data[location].map(item => item.date.toDateString()),
-        });
+      this.graphs = [];
+      for (let definition of urlParserService.graphDefinitions) {
+        let graphData = [];
+        for (let location of definition.locations) {
+          // Sometimes people make typos -- don't bail, return what you can.
+          if (!data[location]) continue;
+          graphData.push({
+            name: location,
+            values: data[location].map(item => item.cases),
+            comments: data[location].map(item => item.date.toDateString()),
+          });
+        }
+        this.graphs.push(graphData);
       }
+      console.log(this.graphs);
     });
   }
 }
