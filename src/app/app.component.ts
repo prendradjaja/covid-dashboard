@@ -31,7 +31,10 @@ export class AppComponent {
         let graphData = [];
         for (let location of definition.locations) {
           // Sometimes people make typos -- don't bail, return what you can.
-          if (!data[location]) continue;
+          if (!data[location]) {
+            console.warn(`Location not found: ${location}`);
+            continue;
+          }
           graphData.push({
             name: location,
             values: data[location].map(item => item.cases),
