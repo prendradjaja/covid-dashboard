@@ -9,7 +9,8 @@
       yAxisLabel="Total cases by country"
       xAxisLabel="Days since {{ numCasesCutoff }} cases"
       [data]="graph"
-      [animate]="true"
+      [xAxisBounds]="graph.params.x_axis_bounds"
+      [yAxisBounds]="graph.params.y_axis_bounds"
     >
     </multi-line-chart>
   </ng-container>

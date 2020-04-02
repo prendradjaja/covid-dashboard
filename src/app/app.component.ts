@@ -38,6 +38,7 @@ export class AppComponent {
             comments: data[location].map(item => item.date.toDateString()),
           });
         }
+        (graphData as any).params = definition; // TODO do this properly
         this.graphs.push(graphData);
       }
     });
