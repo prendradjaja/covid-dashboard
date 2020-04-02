@@ -39,7 +39,7 @@ export class MultiLineChartComponent implements OnInit {
     const width = 800;
     const height = 600;
 
-    const margin = { top: 20, right: 20, bottom: 30, left: 30 };
+    const margin = { top: 20, right: 20, bottom: 30, left: 60 };
 
     const data = {
       y: this.yAxisLabel,
@@ -51,7 +51,7 @@ export class MultiLineChartComponent implements OnInit {
     this.y = d3
       .scaleLog()
       .domain(
-        this.yAxisBounds || [2, d3.max(data.series, d => d3.max(d.values))]
+        this.yAxisBounds || [1, d3.max(data.series, d => d3.max(d.values))]
       )
       .range([height - margin.bottom, margin.top]);
 
@@ -66,15 +66,17 @@ export class MultiLineChartComponent implements OnInit {
       g.attr('transform', `translate(0,${height - margin.bottom})`).call(
         d3
           .axisBottom(this.x)
-          .ticks(width / 80)
+          .tickValues(this.getDayTicks())
           .tickSizeOuter(0)
       );
 
     const yAxis = g =>
-      g
-        .attr('transform', `translate(${margin.left},0)`)
-        .call(d3.axisLeft(this.y))
-        .call(g => g.select('.domain').remove());
+      g.attr('transform', `translate(${margin.left},0)`).call(
+        d3
+          .axisLeft(this.y)
+          .tickValues(this.getCasesTicks())
+          .tickFormat(x => x.toLocaleString())
+      );
 
     const line = d3
       .line()
@@ -128,7 +130,9 @@ export class MultiLineChartComponent implements OnInit {
           `translate(${self.x(data.dates[i])},${self.y(s.values[i])})`
         );
         const comment = s.comments ? '— ' + s.comments[i] : '';
-        dot.select('text').text(`${s.name}: ${s.values[i]}${comment}`);
+        dot
+          .select('text')
+          .text(`${s.name}: ${s.values[i].toLocaleString()}${comment}`);
       }
 
       function entered() {
@@ -184,5 +188,27 @@ export class MultiLineChartComponent implements OnInit {
     }
 
     this.elementRef.nativeElement.appendChild(makeChart());
+  }
+
+  private getDayTicks(): number[] {
+    const [min, max] = this.x.domain();
+    const result = [];
+    for (let i = 0; i <= max; i += 7) {
+      if (i >= min) {
+        result.push(i);
+      }
+    }
+    return result;
+  }
+
+  private getCasesTicks(): number[] {
+    const [min, max] = this.y.domain();
+    const result = [];
+    for (let i = 1; i <= max; i *= 10) {
+      if (i >= min) {
+        result.push(i);
+      }
+    }
+    return result;
   }
 }
