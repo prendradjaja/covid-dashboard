@@ -45,6 +45,7 @@ export class AppComponent {
         this.graphs.push(graphData);
       }
       console.log(this.graphs);
+      window.onhashchange = () => location.reload(); // TODO do this properly
     });
   }
 }
