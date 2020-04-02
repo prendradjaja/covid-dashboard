@@ -22,6 +22,7 @@ export class MultiLineChartComponent implements OnInit {
   // - all the serieses are of the same length & the same dates
   @Input() data: Series[];
   @Input() animate: boolean = false;
+  @Input() locations: string[];
   @Input() xAxisBounds?: [number, number];
   @Input() yAxisBounds?: [number, number];
 
