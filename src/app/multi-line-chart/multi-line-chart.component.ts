@@ -57,39 +57,18 @@ export class MultiLineChartComponent implements OnInit {
       .range([margin.left, width - margin.right]);
 
     const xAxis = g =>
-      g
-        .attr('transform', `translate(0,${height - margin.bottom})`)
-        .call(
-          d3
-            .axisBottom(x)
-            .ticks(width / 80)
-            .tickSizeOuter(0)
-        )
-        .call(g =>
-          g
-            .select('.tick:last-of-type text')
-            .clone()
-            .attr('y', 30)
-            .attr('x', -70)
-            .attr('text-anchor', 'start')
-            .attr('font-weight', 'bold')
-            .text(data.x)
-        );
+      g.attr('transform', `translate(0,${height - margin.bottom})`).call(
+        d3
+          .axisBottom(x)
+          .ticks(width / 80)
+          .tickSizeOuter(0)
+      );
 
     const yAxis = g =>
       g
         .attr('transform', `translate(${margin.left},0)`)
         .call(d3.axisLeft(y))
-        .call(g => g.select('.domain').remove())
-        .call(g =>
-          g
-            .select('.tick:last-of-type text')
-            .clone()
-            .attr('x', 10)
-            .attr('text-anchor', 'start')
-            .attr('font-weight', 'bold')
-            .text(data.y)
-        );
+        .call(g => g.select('.domain').remove());
 
     const line = d3
       .line()
