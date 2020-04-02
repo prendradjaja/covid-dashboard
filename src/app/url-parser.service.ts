@@ -28,6 +28,7 @@ const OPTIONS = {
   comma: true,
 };
 
+// TODO Probably don't need two places for defaults (Here and optional params in MultiLineChartComponent)
 const DEFAULT_GRAPH_PROPERTIES = {
   num_cases_cutoff: 10,
 };
@@ -48,6 +49,8 @@ const replaceDashWithCommaSpace = locationArray =>
 export type CovidGraphDefinition = {
   locations: string[];
   num_cases_cutoff: number;
+  x_axis_bounds: number[];
+  y_axis_bounds: number[];
 };
 
 @Injectable({
