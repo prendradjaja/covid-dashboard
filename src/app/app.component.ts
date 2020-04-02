@@ -40,7 +40,6 @@ export class AppComponent {
         }
         this.graphs.push(graphData);
       }
-      console.log(this.graphs);
     });
   }
 }

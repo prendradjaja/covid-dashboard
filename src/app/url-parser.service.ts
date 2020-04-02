@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import qs from 'qs';
-import mapValues from 'lodash/fp/mapValues';
 
 //////////////////////////////////
 // URL Graph Definition PARSER
@@ -34,7 +33,7 @@ const DEFAULT_GRAPH_PROPERTIES = {
 
 const parseQueryString = queryString => qs.parse(queryString, OPTIONS);
 
-// Many locations utilize '  ' which doesn't url-encode to a nice value.
+// Many locations utilize ', ' which doesn't url-encode to a nice value.
 // By utilizing ++ (which don't require url encoding), we can provide
 // a way to keep our graph encodings human-readable
 const replaceDashWithCommaSpace = locationArray =>
@@ -48,6 +47,7 @@ const replaceDashWithCommaSpace = locationArray =>
 export type CovidGraphDefinition = {
   locations: string[];
   num_cases_cutoff: number;
+  // Add more as needed
 };
 
 @Injectable({
@@ -56,8 +56,9 @@ export type CovidGraphDefinition = {
 export class UrlParserService {
   graphDefinitions: CovidGraphDefinition[];
   constructor() {
-    let parsedQueryString = window.location.href
-      .slice(window.location.href.indexOf('#') + 1)
+    // wow so pointsfree wow
+    this.graphDefinitions = window.location.hash
+      .slice(1)
       .split('#')
       .map(parseQueryString)
       .map(userDefinedGraphProperties => ({
@@ -67,6 +68,5 @@ export class UrlParserService {
           userDefinedGraphProperties.locations || []
         ),
       }));
-    this.graphDefinitions = parsedQueryString;
   }
 }
