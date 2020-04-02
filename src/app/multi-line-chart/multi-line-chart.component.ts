@@ -23,6 +23,9 @@ export class MultiLineChartComponent implements OnInit {
   @Input() data: Series[];
   @Input() animate: boolean = false;
 
+  private x: d3.ScaleContinuousNumeric<number, number>;
+  private y: d3.ScaleContinuousNumeric<number, number>;
+
   constructor(private elementRef: ElementRef) {}
 
   ngOnInit(): void {
@@ -42,24 +45,25 @@ export class MultiLineChartComponent implements OnInit {
       series: this.data,
       dates: times(Math.max(...this.data.map(v => v.values.length)), Number),
     };
-    console.log(data);
 
-    const y = d3
+    this.y = d3
       .scaleLog()
       .domain([2, d3.max(data.series, d => d3.max(d.values))])
       .nice()
       .range([height - margin.bottom, margin.top]);
 
-    const x = d3
+    this.x = d3
       .scaleLinear()
-
       .domain(d3.extent(data.dates as Number[]))
+      .nice()
       .range([margin.left, width - margin.right]);
+
+    console.log(this.x.domain(), this.y.domain());
 
     const xAxis = g =>
       g.attr('transform', `translate(0,${height - margin.bottom})`).call(
         d3
-          .axisBottom(x)
+          .axisBottom(this.x)
           .ticks(width / 80)
           .tickSizeOuter(0)
       );
@@ -67,14 +71,14 @@ export class MultiLineChartComponent implements OnInit {
     const yAxis = g =>
       g
         .attr('transform', `translate(${margin.left},0)`)
-        .call(d3.axisLeft(y))
+        .call(d3.axisLeft(this.y))
         .call(g => g.select('.domain').remove());
 
     const line = d3
       .line()
       .defined(d => !isNaN(d as any))
-      .x((d, i) => x(data.dates[i]))
-      .y(d => y(d as any));
+      .x((d, i) => this.x(data.dates[i]))
+      .y(d => this.y(d as any));
 
     function hover(svg, path) {
       if ('ontouchstart' in document)
@@ -104,8 +108,8 @@ export class MultiLineChartComponent implements OnInit {
         const boundingRect = (self.elementRef
           .nativeElement as Element).getBoundingClientRect();
         d3.event.preventDefault();
-        const ym = y.invert(d3.event.layerY - boundingRect.top);
-        const xm = x.invert(d3.event.layerX - boundingRect.left);
+        const ym = self.y.invert(d3.event.layerY - boundingRect.top);
+        const xm = self.x.invert(d3.event.layerX - boundingRect.left);
         const i1 = d3.bisectLeft(data.dates, xm, 1);
         const i0 = i1 - 1;
         // @ts-ignore
@@ -119,7 +123,7 @@ export class MultiLineChartComponent implements OnInit {
           .raise();
         dot.attr(
           'transform',
-          `translate(${x(data.dates[i])},${y(s.values[i])})`
+          `translate(${self.x(data.dates[i])},${self.y(s.values[i])})`
         );
         const comment = s.comments ? '— ' + s.comments[i] : '';
         dot.select('text').text(`${s.name}: ${s.values[i]}${comment}`);
