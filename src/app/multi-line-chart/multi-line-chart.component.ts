@@ -22,6 +22,8 @@ export class MultiLineChartComponent implements OnInit {
   // - all the serieses are of the same length & the same dates
   @Input() data: Series[];
   @Input() animate: boolean = false;
+  @Input() xAxisBounds?: [number, number];
+  @Input() yAxisBounds?: [number, number];
 
   private x: d3.ScaleContinuousNumeric<number, number>;
   private y: d3.ScaleContinuousNumeric<number, number>;
@@ -48,13 +50,15 @@ export class MultiLineChartComponent implements OnInit {
 
     this.y = d3
       .scaleLog()
-      .domain([2, d3.max(data.series, d => d3.max(d.values))])
+      .domain(
+        this.yAxisBounds || [2, d3.max(data.series, d => d3.max(d.values))]
+      )
       .nice()
       .range([height - margin.bottom, margin.top]);
 
     this.x = d3
       .scaleLinear()
-      .domain(d3.extent(data.dates as Number[]))
+      .domain(this.xAxisBounds || d3.extent(data.dates as Number[]))
       .nice()
       .range([margin.left, width - margin.right]);
 
