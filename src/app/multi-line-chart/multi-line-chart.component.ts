@@ -53,13 +53,11 @@ export class MultiLineChartComponent implements OnInit {
       .domain(
         this.yAxisBounds || [2, d3.max(data.series, d => d3.max(d.values))]
       )
-      .nice()
       .range([height - margin.bottom, margin.top]);
 
     this.x = d3
       .scaleLinear()
       .domain(this.xAxisBounds || d3.extent(data.dates as Number[]))
-      .nice()
       .range([margin.left, width - margin.right]);
 
     console.log(this.x.domain(), this.y.domain());
