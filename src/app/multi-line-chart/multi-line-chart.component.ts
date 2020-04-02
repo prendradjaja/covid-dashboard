@@ -25,8 +25,8 @@ export class MultiLineChartComponent implements OnInit {
   @Input() xAxisBounds?: [number, number];
   @Input() yAxisBounds?: [number, number];
 
-  private x: d3.ScaleContinuousNumeric<number, number>;
-  private y: d3.ScaleContinuousNumeric<number, number>;
+  private xScale: d3.ScaleContinuousNumeric<number, number>;
+  private yScale: d3.ScaleContinuousNumeric<number, number>;
 
   constructor(private elementRef: ElementRef) {}
 
@@ -48,24 +48,24 @@ export class MultiLineChartComponent implements OnInit {
       dates: times(Math.max(...this.data.map(v => v.values.length)), Number),
     };
 
-    this.y = d3
+    this.yScale = d3
       .scaleLog()
       .domain(
         this.yAxisBounds || [1, d3.max(data.series, d => d3.max(d.values))]
       )
       .range([height - margin.bottom, margin.top]);
 
-    this.x = d3
+    this.xScale = d3
       .scaleLinear()
       .domain(this.xAxisBounds || d3.extent(data.dates as Number[]))
       .range([margin.left, width - margin.right]);
 
-    console.log(this.x.domain(), this.y.domain());
+    console.log(this.xScale.domain(), this.yScale.domain());
 
     const xAxis = g =>
       g.attr('transform', `translate(0,${height - margin.bottom})`).call(
         d3
-          .axisBottom(this.x)
+          .axisBottom(this.xScale)
           .tickValues(this.getDayTicks())
           .tickSizeOuter(0)
       );
@@ -73,7 +73,7 @@ export class MultiLineChartComponent implements OnInit {
     const yAxis = g =>
       g.attr('transform', `translate(${margin.left},0)`).call(
         d3
-          .axisLeft(this.y)
+          .axisLeft(this.yScale)
           .tickValues(this.getCasesTicks())
           .tickFormat(x => x.toLocaleString())
       );
@@ -81,8 +81,8 @@ export class MultiLineChartComponent implements OnInit {
     const line = d3
       .line()
       .defined(d => !isNaN(d as any))
-      .x((d, i) => this.x(data.dates[i]))
-      .y(d => this.y(d as any));
+      .x((d, i) => this.xScale(data.dates[i]))
+      .y(d => this.yScale(d as any));
 
     function hover(svg, path) {
       if ('ontouchstart' in document)
@@ -112,8 +112,8 @@ export class MultiLineChartComponent implements OnInit {
         const boundingRect = (self.elementRef
           .nativeElement as Element).getBoundingClientRect();
         d3.event.preventDefault();
-        const ym = self.y.invert(d3.event.layerY - boundingRect.top);
-        const xm = self.x.invert(d3.event.layerX - boundingRect.left);
+        const ym = self.yScale.invert(d3.event.layerY - boundingRect.top);
+        const xm = self.xScale.invert(d3.event.layerX - boundingRect.left);
         const i1 = d3.bisectLeft(data.dates, xm, 1);
         const i0 = i1 - 1;
         // @ts-ignore
@@ -127,7 +127,7 @@ export class MultiLineChartComponent implements OnInit {
           .raise();
         dot.attr(
           'transform',
-          `translate(${self.x(data.dates[i])},${self.y(s.values[i])})`
+          `translate(${self.xScale(data.dates[i])},${self.yScale(s.values[i])})`
         );
         const comment = s.comments ? '— ' + s.comments[i] : '';
         dot
@@ -193,8 +193,8 @@ export class MultiLineChartComponent implements OnInit {
               .selectAll('line')
               .data(self.getDayTicks())
               .join('line')
-              .attr('x1', d => 0.5 + self.x(d))
-              .attr('x2', d => 0.5 + self.x(d))
+              .attr('x1', d => 0.5 + self.xScale(d))
+              .attr('x2', d => 0.5 + self.xScale(d))
               .attr('y1', margin.top)
               .attr('y2', height - margin.bottom)
           )
@@ -204,8 +204,8 @@ export class MultiLineChartComponent implements OnInit {
               .selectAll('line')
               .data(self.getCasesTicks())
               .join('line')
-              .attr('y1', d => 0.5 + self.y(d))
-              .attr('y2', d => 0.5 + self.y(d))
+              .attr('y1', d => 0.5 + self.yScale(d))
+              .attr('y2', d => 0.5 + self.yScale(d))
               .attr('x1', margin.left)
               .attr('x2', width - margin.right)
           )
@@ -220,7 +220,7 @@ export class MultiLineChartComponent implements OnInit {
   }
 
   private getDayTicks(): number[] {
-    const [min, max] = this.x.domain();
+    const [min, max] = this.xScale.domain();
     const result = [];
     for (let i = 0; i <= max; i += 7) {
       if (i >= min) {
@@ -231,7 +231,7 @@ export class MultiLineChartComponent implements OnInit {
   }
 
   private getCasesTicks(): number[] {
-    const [min, max] = this.y.domain();
+    const [min, max] = this.yScale.domain();
     const result = [];
     for (let i = 1; i <= max; i *= 10) {
       if (i >= min) {
