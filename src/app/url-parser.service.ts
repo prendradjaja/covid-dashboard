@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import qs from 'qs';
+import { Subject, Observable } from 'rxjs';
 
 //////////////////////////////////
 // URL Graph Definition PARSER
@@ -50,23 +51,33 @@ export type CovidGraphDefinition = {
   // Add more as needed
 };
 
+const urlToGraphs = (): CovidGraphDefinition[] =>
+  window.location.hash
+    .slice(1)
+    .split('#')
+    .map(parseQueryString)
+    .map(userDefinedGraphProperties => ({
+      ...DEFAULT_GRAPH_PROPERTIES,
+      ...userDefinedGraphProperties,
+      locations: replaceDashWithCommaSpace(
+        userDefinedGraphProperties.locations || []
+      ),
+    }));
+
 @Injectable({
   providedIn: 'root',
 })
 export class UrlParserService {
-  graphDefinitions: CovidGraphDefinition[];
+  urlNotifier: Observable<CovidGraphDefinition[]>;
   constructor() {
-    // wow so pointsfree wow
-    this.graphDefinitions = window.location.hash
-      .slice(1)
-      .split('#')
-      .map(parseQueryString)
-      .map(userDefinedGraphProperties => ({
-        ...DEFAULT_GRAPH_PROPERTIES,
-        ...userDefinedGraphProperties,
-        locations: replaceDashWithCommaSpace(
-          userDefinedGraphProperties.locations || []
-        ),
-      }));
+    // Pass back an observable, which will update the parsed urls
+    // every time a change is detected in the hash.
+    this.urlNotifier = new Observable(observer => {
+      setTimeout(() => observer.next(urlToGraphs()), 1);
+      window.onhashchange = () => {
+        console.log('changing', window.location.hash);
+        observer.next(urlToGraphs());
+      };
+    });
   }
 }

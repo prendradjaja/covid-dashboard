@@ -1,8 +1,4 @@
-<ng-container *ngIf="graphs == null; else dataAvailable">
-  <img
-    src="https://cdn.dribbble.com/users/1680472/screenshots/5697390/google-loader.gif"
-  />
-</ng-container>
+<ng-container *ngIf="graphs == null; else dataAvailable"> </ng-container>
 <ng-template #dataAvailable>
   <ng-container *ngFor="let graph of graphs">
     <multi-line-chart
