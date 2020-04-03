@@ -75,7 +75,6 @@ export class UrlParserService {
     this.urlNotifier = new Observable(observer => {
       setTimeout(() => observer.next(urlToGraphs()), 1);
       window.onhashchange = () => {
-        console.log('changing', window.location.hash);
         observer.next(urlToGraphs());
       };
     });

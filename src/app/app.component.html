@@ -1,5 +1,4 @@
-<ng-container *ngIf="graphs == null; else dataAvailable"> </ng-container>
-<ng-template #dataAvailable>
+<ng-template *ngIf="graphs !== null">
   <ng-container *ngFor="let graph of graphs">
     <multi-line-chart
       yAxisLabel="Total cases by country"
