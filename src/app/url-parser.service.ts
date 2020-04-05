@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import qs from 'qs';
-import { Subject, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { ActivatedRoute } from '@angular/router';
 
 //////////////////////////////////
 // URL Graph Definition PARSER
@@ -32,18 +34,26 @@ const DEFAULT_GRAPH_PROPERTIES = {
   num_cases_cutoff: 10,
 };
 
-const parseQueryString = queryString => qs.parse(queryString, OPTIONS);
+const parseQueryString = (queryString) => qs.parse(queryString, OPTIONS);
 
 // Many locations utilize ', ' which doesn't url-encode to a nice value.
 // By utilizing ++ (which don't require url encoding), we can provide
 // a way to keep our graph encodings human-readable
-const replaceDashWithCommaSpace = locationArray =>
+const replaceDashWithCommaSpace = (locationArray) =>
   // Annoying quirk of QS. A single-element "Array" is a string, so we need
   // to handle the single-location case
   (Array.isArray(locationArray)
     ? locationArray
     : [locationArray]
-  ).map(locString => locString.replace(/  /g, ', '));
+  ).map((locString) => locString.replace(/  /g, ', '));
+
+const generateGraphDefinitions = (userDefinedGraphProperties) => ({
+  ...DEFAULT_GRAPH_PROPERTIES,
+  ...userDefinedGraphProperties,
+  locations: replaceDashWithCommaSpace(
+    userDefinedGraphProperties.locations || []
+  ),
+});
 
 export type CovidGraphDefinition = {
   locations: string[];
@@ -51,32 +61,17 @@ export type CovidGraphDefinition = {
   // Add more as needed
 };
 
-const urlToGraphs = (): CovidGraphDefinition[] =>
-  window.location.hash
-    .slice(1)
-    .split('#')
-    .map(parseQueryString)
-    .map(userDefinedGraphProperties => ({
-      ...DEFAULT_GRAPH_PROPERTIES,
-      ...userDefinedGraphProperties,
-      locations: replaceDashWithCommaSpace(
-        userDefinedGraphProperties.locations || []
-      ),
-    }));
+const urlToGraphs = (hash: string): CovidGraphDefinition[] =>
+  hash.split('#').map(parseQueryString).map(generateGraphDefinitions);
 
 @Injectable({
   providedIn: 'root',
 })
 export class UrlParserService {
   urlNotifier: Observable<CovidGraphDefinition[]>;
-  constructor() {
+  constructor(private route: ActivatedRoute) {
     // Pass back an observable, which will update the parsed urls
     // every time a change is detected in the hash.
-    this.urlNotifier = new Observable(observer => {
-      setTimeout(() => observer.next(urlToGraphs()), 1);
-      window.onhashchange = () => {
-        observer.next(urlToGraphs());
-      };
-    });
+    this.urlNotifier = route.fragment.pipe(map(urlToGraphs));
   }
 }

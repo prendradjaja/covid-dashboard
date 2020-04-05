@@ -1,11 +1,9 @@
-<ng-template *ngIf="graphs !== null">
-  <ng-container *ngFor="let graph of graphs">
-    <multi-line-chart
-      yAxisLabel="Total cases by country"
-      xAxisLabel="Days since {{ numCasesCutoff }} cases"
-      [data]="graph"
-      [animate]="true"
-    >
-    </multi-line-chart>
-  </ng-container>
-</ng-template>
+<ng-container *ngFor="let graph of graphs">
+  <multi-line-chart
+    yAxisLabel="Total cases by country"
+    xAxisLabel="Days since {{ numCasesCutoff }} cases"
+    [data]="graph"
+    [animate]="true"
+  >
+  </multi-line-chart>
+</ng-container>

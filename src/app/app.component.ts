@@ -1,12 +1,8 @@
 import { Component } from '@angular/core';
-import { json } from 'd3';
-import {
-  CdsFetcherService,
-  Foo,
-  NUM_CASES_CUTOFF,
-} from './cds-fetcher.service';
+import { CdsFetcherService, NUM_CASES_CUTOFF } from './cds-fetcher.service';
 import { Series } from './multi-line-chart/multi-line-chart.component';
-import { UrlParserService, CovidGraphDefinition } from './url-parser.service';
+import { UrlParserService } from './url-parser.service';
+import { combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -15,32 +11,26 @@ import { UrlParserService, CovidGraphDefinition } from './url-parser.service';
 })
 export class AppComponent {
   title = 'angular9covid-dashboard';
-  cdsData: { [key: string]: Foo };
   graphs: Series[][];
   numCasesCutoff = NUM_CASES_CUTOFF;
   constructor(
     private cdsFetcherService: CdsFetcherService,
     private urlParserService: UrlParserService
   ) {
-    cdsFetcherService.data.then(data => {
-      this.cdsData = data;
-      urlParserService.urlNotifier.subscribe(
-        (graphDefinitions: CovidGraphDefinition[]) => {
-          this.graphs = [];
-          for (let definition of graphDefinitions) {
-            let graphData = [];
-            for (let location of definition.locations) {
-              // Sometimes people make typos -- don't bail, return what you can.
-              if (!data[location]) continue;
-              graphData.push({
-                name: location,
-                values: data[location].map(item => item.cases),
-                comments: data[location].map(item => item.date.toDateString()),
-              });
-            }
-            this.graphs.push(graphData);
-          }
-        }
+    combineLatest(
+      cdsFetcherService.data,
+      urlParserService.urlNotifier
+    ).subscribe(([data, graphDefinitions]) => {
+      if (!data) return;
+      this.graphs = graphDefinitions.map((definition) =>
+        definition.locations
+          // allow invalid names
+          .filter((name) => data[name])
+          .map((name) => ({
+            name,
+            values: data[name].map((item) => item.cases),
+            comments: data[name].map((item) => item.date.toDateString()),
+          }))
       );
     });
   }
