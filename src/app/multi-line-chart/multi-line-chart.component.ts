@@ -22,6 +22,11 @@ export class MultiLineChartComponent implements OnInit {
   // - all the serieses are of the same length & the same dates
   @Input() data: Series[];
   @Input() animate: boolean = false;
+  @Input() xAxisBounds?: [number, number];
+  @Input() yAxisBounds?: [number, number];
+
+  private xScale: d3.ScaleContinuousNumeric<number, number>;
+  private yScale: d3.ScaleContinuousNumeric<number, number>;
 
   constructor(private elementRef: ElementRef) {}
 
@@ -34,7 +39,7 @@ export class MultiLineChartComponent implements OnInit {
     const width = 800;
     const height = 600;
 
-    const margin = { top: 20, right: 20, bottom: 30, left: 30 };
+    const margin = { top: 20, right: 20, bottom: 30, left: 60 };
 
     const data = {
       y: this.yAxisLabel,
@@ -42,60 +47,42 @@ export class MultiLineChartComponent implements OnInit {
       series: this.data,
       dates: times(Math.max(...this.data.map(v => v.values.length)), Number),
     };
-    console.log(data);
 
-    const y = d3
+    this.yScale = d3
       .scaleLog()
-      .domain([2, d3.max(data.series, d => d3.max(d.values))])
-      .nice()
+      .domain(
+        this.yAxisBounds || [1, d3.max(data.series, d => d3.max(d.values))]
+      )
       .range([height - margin.bottom, margin.top]);
 
-    const x = d3
+    this.xScale = d3
       .scaleLinear()
-
-      .domain(d3.extent(data.dates as Number[]))
+      .domain(this.xAxisBounds || d3.extent(data.dates as Number[]))
       .range([margin.left, width - margin.right]);
 
+    console.log(this.xScale.domain(), this.yScale.domain());
+
     const xAxis = g =>
-      g
-        .attr('transform', `translate(0,${height - margin.bottom})`)
-        .call(
-          d3
-            .axisBottom(x)
-            .ticks(width / 80)
-            .tickSizeOuter(0)
-        )
-        .call(g =>
-          g
-            .select('.tick:last-of-type text')
-            .clone()
-            .attr('y', 30)
-            .attr('x', -70)
-            .attr('text-anchor', 'start')
-            .attr('font-weight', 'bold')
-            .text(data.x)
-        );
+      g.attr('transform', `translate(0,${height - margin.bottom})`).call(
+        d3
+          .axisBottom(this.xScale)
+          .tickValues(this.getDayTicks())
+          .tickSizeOuter(0)
+      );
 
     const yAxis = g =>
-      g
-        .attr('transform', `translate(${margin.left},0)`)
-        .call(d3.axisLeft(y))
-        .call(g => g.select('.domain').remove())
-        .call(g =>
-          g
-            .select('.tick:last-of-type text')
-            .clone()
-            .attr('x', 10)
-            .attr('text-anchor', 'start')
-            .attr('font-weight', 'bold')
-            .text(data.y)
-        );
+      g.attr('transform', `translate(${margin.left},0)`).call(
+        d3
+          .axisLeft(this.yScale)
+          .tickValues(this.getCasesTicks())
+          .tickFormat(x => x.toLocaleString())
+      );
 
     const line = d3
       .line()
       .defined(d => !isNaN(d as any))
-      .x((d, i) => x(data.dates[i]))
-      .y(d => y(d as any));
+      .x((d, i) => this.xScale(data.dates[i]))
+      .y(d => this.yScale(d as any));
 
     function hover(svg, path) {
       if ('ontouchstart' in document)
@@ -125,8 +112,8 @@ export class MultiLineChartComponent implements OnInit {
         const boundingRect = (self.elementRef
           .nativeElement as Element).getBoundingClientRect();
         d3.event.preventDefault();
-        const ym = y.invert(d3.event.layerY - boundingRect.top);
-        const xm = x.invert(d3.event.layerX - boundingRect.left);
+        const ym = self.yScale.invert(d3.event.layerY - boundingRect.top);
+        const xm = self.xScale.invert(d3.event.layerX - boundingRect.left);
         const i1 = d3.bisectLeft(data.dates, xm, 1);
         const i0 = i1 - 1;
         // @ts-ignore
@@ -140,10 +127,12 @@ export class MultiLineChartComponent implements OnInit {
           .raise();
         dot.attr(
           'transform',
-          `translate(${x(data.dates[i])},${y(s.values[i])})`
+          `translate(${self.xScale(data.dates[i])},${self.yScale(s.values[i])})`
         );
         const comment = s.comments ? '— ' + s.comments[i] : '';
-        dot.select('text').text(`${s.name}: ${s.values[i]}${comment}`);
+        dot
+          .select('text')
+          .text(`${s.name}: ${s.values[i].toLocaleString()}${comment}`);
       }
 
       function entered() {
@@ -193,11 +182,62 @@ export class MultiLineChartComponent implements OnInit {
         });
       }
 
+      // Grid lines
+      svg.append('g').call(g =>
+        g
+          .attr('stroke', 'black')
+          .attr('stroke-opacity', 0.1)
+          .call(g =>
+            g
+              .append('g')
+              .selectAll('line')
+              .data(self.getDayTicks())
+              .join('line')
+              .attr('x1', d => 0.5 + self.xScale(d))
+              .attr('x2', d => 0.5 + self.xScale(d))
+              .attr('y1', margin.top)
+              .attr('y2', height - margin.bottom)
+          )
+          .call(g =>
+            g
+              .append('g')
+              .selectAll('line')
+              .data(self.getCasesTicks())
+              .join('line')
+              .attr('y1', d => 0.5 + self.yScale(d))
+              .attr('y2', d => 0.5 + self.yScale(d))
+              .attr('x1', margin.left)
+              .attr('x2', width - margin.right)
+          )
+      );
+
       svg.call(hover, path);
 
       return svg.node();
     }
 
     this.elementRef.nativeElement.appendChild(makeChart());
+  }
+
+  private getDayTicks(): number[] {
+    const [min, max] = this.xScale.domain();
+    const result = [];
+    for (let i = 0; i <= max; i += 7) {
+      if (i >= min) {
+        result.push(i);
+      }
+    }
+    return result;
+  }
+
+  private getCasesTicks(): number[] {
+    const [min, max] = this.yScale.domain();
+    const result = [];
+    for (let i = 1; i <= max; i *= 10) {
+      if (i >= min) {
+        result.push(i);
+      }
+    }
+    return result;
   }
 }
