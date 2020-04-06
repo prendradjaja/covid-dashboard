@@ -1,0 +1,31 @@
+input {
+  margin: 15px 0;
+  padding: 15px 10px;
+  width: 100%;
+  outline: none;
+  border: 1px solid #bbb;
+  display: inline-block;
+  border-radius: 2px;
+  font-size: 20px;
+}
+
+.suggestion-container {
+  width: calc(100% - 20px);
+  border: 1px solid #bbb;
+  position: absolute;
+  background: white;
+}
+.suggestion {
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 15px 10px;
+  width: calc(100% - 20px);
+  outline: none;
+  display: inline-block;
+  border-radius: 2px;
+  font-size: 20px;
+  cursor: pointer;
+  &:hover {
+    background: lightblue;
+  }
+  transition: all 0.3s ease;
+}

@@ -1,0 +1,11 @@
+<input placeholder="Add a location" (keyup)="locationSearch($event)" />
+<div
+  class="suggestion-container"
+  *ngIf="suggestions != null && suggestions.length"
+>
+  <ng-container *ngFor="let suggestion of suggestions">
+    <div class="suggestion" (click)="addLocation(suggestion.item)">
+      {{ suggestion.item }}
+    </div>
+  </ng-container>
+</div>
