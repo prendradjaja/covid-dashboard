@@ -62,14 +62,7 @@ export type CovidGraphDefinition = {
 };
 
 const urlToGraphs = (hash: string): CovidGraphDefinition[] =>
-  hash
-    .split('#')
-    .map(parseQueryString)
-    .map((t) => {
-      console.log((t.locations || []).map(replaceDashWithCommaSpace));
-      return t;
-    })
-    .map(generateGraphDefinitions);
+  (hash || '').split('#').map(parseQueryString).map(generateGraphDefinitions);
 
 @Injectable({
   providedIn: 'root',

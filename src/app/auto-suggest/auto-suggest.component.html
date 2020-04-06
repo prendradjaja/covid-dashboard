@@ -1,4 +1,8 @@
 <input placeholder="Add a location" (keyup)="locationSearch($event)" />
+<br />
+<button (click)="clearAll()">
+  Clear locations
+</button>
 <div
   class="suggestion-container"
   *ngIf="suggestions != null && suggestions.length"

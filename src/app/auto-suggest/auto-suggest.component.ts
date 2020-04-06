@@ -43,10 +43,17 @@ export class AutoSuggestComponent implements OnInit {
         .slice(0, 10);
   };
 
+  clearAll = () => {
+    window.location.hash = '';
+  };
+
   addLocation = (location) => {
-    console.log(location);
-    let t = location.replace(/, /g, '++').replace(/ /g, '+');
-    window.location.hash = window.location.hash.replace(',&', `,${t},&`);
+    if (!window.location.hash) {
+      window.location.hash = `#locations=${location},&num_cases_cutoff=10`;
+    } else {
+      let t = location.replace(/, /g, '++').replace(/ /g, '+');
+      window.location.hash = window.location.hash.replace(',&', `,${t},&`);
+    }
     this.suggestions = [];
   };
   ngOnInit(): void {}
