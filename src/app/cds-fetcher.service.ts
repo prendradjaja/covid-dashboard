@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import differenceInCalendarDays from 'date-fns/differenceInCalendarDays';
 import parse from 'date-fns/parse';
 import mapValues from 'lodash/fp/mapValues';
-import { Observable } from 'rxjs';
+import { Observable, from } from 'rxjs';
 
 type CDSCount = {
   active: number;
@@ -65,14 +65,12 @@ export class CdsFetcherService {
   data: Observable<{ [key: string]: Foo }>;
 
   constructor() {
-    this.data = new Observable((observer) => {
+    this.data = from(
       fetch(CORONA_URL)
         // get response data to json
         .then((res) => res.json())
         // convert json to correctly formatted timeseries
         .then(mapValues(parseTimeseriesData))
-        // emit the processed data.
-        .then((data) => observer.next(data));
-    });
+    );
   }
 }
