@@ -24,37 +24,22 @@ export class AppComponent {
       nytFetcherService.data,
       urlParserService.urlNotifier
     ).subscribe(([cdsData, nytData, graphDefinitions]) => {
-      if (cdsData) {
-        this.graphs = {
-          ...this.graphs,
-          ...graphDefinitions.map((definition) =>
-            definition.locations
-              // allow invalid names
-              .filter((name) => cdsData[name])
-              .map((name) => ({
-                name,
-                values: cdsData[name].map((item) => item.cases),
-                comments: cdsData[name].map((item) => item.date.toDateString()),
-              }))
-          ),
-        };
-      }
+      const data = {
+        ...cdsData,
+        ...nytData,
+      };
 
-      if (nytData) {
-        this.graphs = {
-          ...this.graphs,
-          ...graphDefinitions.map((definition) =>
-            definition.locations
-              // allow invalid names
-              .filter((name) => nytData[name])
-              .map((name) => ({
-                name,
-                values: nytData[name].map((item) => item.cases),
-                comments: nytData[name].map((item) => item.date.toDateString()),
-              }))
-          ),
-        };
-      }
+      if (Object.keys(data).length === 0) return;
+      this.graphs = graphDefinitions.map((definition) =>
+        definition.locations
+          // allow invalid names
+          .filter((name) => data[name])
+          .map((name) => ({
+            name,
+            values: data[name].map((item) => item.cases),
+            comments: data[name].map((item) => item.date.toDateString()),
+          }))
+      );
     });
   }
 }

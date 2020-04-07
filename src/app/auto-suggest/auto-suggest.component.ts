@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import * as Fuse from 'fuse.js/dist/fuse.js';
 import { CdsFetcherService, NUM_CASES_CUTOFF } from '../cds-fetcher.service';
+import { NytFetcherService } from '../nyt-fetcher.service';
+import { combineLatest } from 'rxjs';
 
 const VISUALLY_DISTINCT_COLORS = [
   '#767833',
@@ -28,12 +30,20 @@ const VISUALLY_DISTINCT_COLORS = [
 export class AutoSuggestComponent implements OnInit {
   searchableLocations: Fuse<string, any>;
   suggestions: Fuse.FuseResult<string>[];
-  constructor(private cdsFetcherService: CdsFetcherService) {
-    cdsFetcherService.data.subscribe((data) => {
-      this.searchableLocations = new Fuse(Object.keys(data), {
-        threshold: 0.3,
-      });
-    });
+  constructor(
+    private cdsFetcherService: CdsFetcherService,
+    private nytFetcherService: NytFetcherService
+  ) {
+    combineLatest(nytFetcherService.data, cdsFetcherService.data).subscribe(
+      ([nytData, cdsData]) => {
+        this.searchableLocations = new Fuse(
+          Object.keys({ ...nytData, ...cdsData }),
+          {
+            threshold: 0.3,
+          }
+        );
+      }
+    );
   }
 
   locationSearch = (event) => {

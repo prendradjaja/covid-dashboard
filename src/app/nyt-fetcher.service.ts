@@ -45,7 +45,7 @@ const convertNYTArrayToCoronaDatapoint = ([
   cases,
   deaths,
 ]) => ({
-  location: `${locationName} ${fips} NYT`,
+  location: `${locationName} FIPS: ${fips} (source: New York Times)`,
   date,
   cases,
   deaths,
