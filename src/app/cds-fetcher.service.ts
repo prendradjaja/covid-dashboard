@@ -30,15 +30,15 @@ export type Foo = {
   growthFactor: number;
 }[];
 
-export const NUM_CASES_CUTOFF = 10;
+export const NUM_CASES_CUTOFF = 1;
 
-const parseCDSDateString = dateString =>
+const parseCDSDateString = (dateString) =>
   parse(dateString, 'yyyy-MM-dd', new Date(1984, 0, 1));
 
 function parseTimeseriesData(tsData: CDSLocationTimeSeriesData): Foo {
   let dates = Object.entries(tsData.dates);
   let outbreakStartIndex = dates.findIndex(([dateString, info]) => {
-    return info.cases > NUM_CASES_CUTOFF;
+    return info.deaths > NUM_CASES_CUTOFF;
   });
   if (outbreakStartIndex < 0) return [];
   let outBreakStartDate = parseCDSDateString(dates[outbreakStartIndex][0]);
@@ -65,7 +65,7 @@ export class CdsFetcherService {
     const CORONA_URL = `https://coronadatascraper.com/timeseries-byLocation.json`;
     let timeInit;
     this.data = fetch(CORONA_URL)
-      .then(response => {
+      .then((response) => {
         timeInit = performance.now();
 
         return response.json();

@@ -44,13 +44,14 @@ export class MultiLineChartComponent implements OnInit {
       y: this.yAxisLabel,
       x: this.xAxisLabel,
       series: this.data,
-      dates: times(Math.max(...this.data.map(v => v.values.length)), Number),
+      dates: times(Math.max(...this.data.map((v) => v.values.length)), Number),
     };
 
     this.yScale = d3
-      .scaleLog()
+      // .scaleLog()
+      .scaleLinear()
       .domain(
-        this.yAxisBounds || [1, d3.max(data.series, d => d3.max(d.values))]
+        this.yAxisBounds || [1, d3.max(data.series, (d) => d3.max(d.values))]
       )
       .range([this.height - margin.bottom, margin.top]);
 
@@ -61,27 +62,29 @@ export class MultiLineChartComponent implements OnInit {
 
     console.log(this.xScale.domain(), this.yScale.domain());
 
-    const xAxis = g =>
-      g.attr('transform', `translate(0,${this.height - margin.bottom})`).call(
-        d3
-          .axisBottom(this.xScale)
-          .tickValues(this.getDayTicks())
-          .tickSizeOuter(0)
-      );
+    const xAxis = (g) =>
+      g
+        .attr('transform', `translate(0,${this.height - margin.bottom})`)
+        .call(
+          d3
+            .axisBottom(this.xScale)
+            .tickValues(this.getDayTicks())
+            .tickSizeOuter(0)
+        );
 
-    const yAxis = g =>
+    const yAxis = (g) =>
       g.attr('transform', `translate(${margin.left},0)`).call(
         d3
           .axisLeft(this.yScale)
           .tickValues(this.getCasesTicks())
-          .tickFormat(x => x.toLocaleString())
+          .tickFormat((x) => x.toLocaleString())
       );
 
     const line = d3
       .line()
-      .defined(d => !isNaN(d as any))
+      .defined((d) => !isNaN(d as any))
       .x((d, i) => this.xScale(data.dates[i]))
-      .y(d => this.yScale(d as any));
+      .y((d) => this.yScale(d as any));
 
     function hover(svg, path) {
       if ('ontouchstart' in document)
@@ -117,12 +120,12 @@ export class MultiLineChartComponent implements OnInit {
         const i0 = i1 - 1;
         // @ts-ignore
         const i = xm - data.dates[i0] > data.dates[i1] - xm ? i1 : i0;
-        const s = (d3Array as any).least(data.series, d =>
+        const s = (d3Array as any).least(data.series, (d) =>
           Math.abs(Math.log10(d.values[i]) - Math.log10(ym))
         );
         path
-          .attr('stroke', d => (d === s ? null : '#ddd'))
-          .filter(d => d === s)
+          .attr('stroke', (d) => (d === s ? null : '#ddd'))
+          .filter((d) => d === s)
           .raise();
         dot.attr(
           'transform',
@@ -168,11 +171,11 @@ export class MultiLineChartComponent implements OnInit {
         .data(data.series)
         .join('path')
         .style('mix-blend-mode', 'multiply')
-        .attr('d', d => line(d.values as any));
+        .attr('d', (d) => line(d.values as any));
 
       if (self.animate) {
         // @ts-ignore
-        path._groups[0].forEach(node => {
+        path._groups[0].forEach((node) => {
           let length = node.getTotalLength();
           d3.select(node)
             .attr('stroke-dasharray', length)
@@ -184,29 +187,29 @@ export class MultiLineChartComponent implements OnInit {
       }
 
       // Grid lines
-      svg.append('g').call(g =>
+      svg.append('g').call((g) =>
         g
           .attr('stroke', 'black')
           .attr('stroke-opacity', 0.1)
-          .call(g =>
+          .call((g) =>
             g
               .append('g')
               .selectAll('line')
               .data(self.getDayTicks())
               .join('line')
-              .attr('x1', d => 0.5 + self.xScale(d))
-              .attr('x2', d => 0.5 + self.xScale(d))
+              .attr('x1', (d) => 0.5 + self.xScale(d))
+              .attr('x2', (d) => 0.5 + self.xScale(d))
               .attr('y1', margin.top)
               .attr('y2', self.height - margin.bottom)
           )
-          .call(g =>
+          .call((g) =>
             g
               .append('g')
               .selectAll('line')
               .data(self.getCasesTicks())
               .join('line')
-              .attr('y1', d => 0.5 + self.yScale(d))
-              .attr('y2', d => 0.5 + self.yScale(d))
+              .attr('y1', (d) => 0.5 + self.yScale(d))
+              .attr('y2', (d) => 0.5 + self.yScale(d))
               .attr('x1', margin.left)
               .attr('x2', self.width - margin.right)
           )
@@ -234,7 +237,7 @@ export class MultiLineChartComponent implements OnInit {
   private getCasesTicks(): number[] {
     const [min, max] = this.yScale.domain();
     const result = [];
-    for (let i = 1; i <= max; i *= 10) {
+    for (let i = 0; i <= max; i += 10) {
       if (i >= min) {
         result.push(i);
       }

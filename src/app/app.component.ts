@@ -24,7 +24,7 @@ export class AppComponent {
     private cdsFetcherService: CdsFetcherService,
     private urlParserService: UrlParserService
   ) {
-    cdsFetcherService.data.then(data => {
+    cdsFetcherService.data.then((data) => {
       this.cdsData = data;
       this.graphs = [];
       for (let definition of urlParserService.graphDefinitions) {
@@ -37,13 +37,14 @@ export class AppComponent {
           }
           graphData.push({
             name: location,
-            values: data[location].map(item => item.cases),
-            comments: data[location].map(item => item.date.toDateString()),
+            values: data[location].map((item) => item.deaths),
+            comments: data[location].map((item) => item.date.toDateString()),
           });
         }
         (graphData as any).params = definition; // TODO do this properly
         this.graphs.push(graphData);
       }
+      window.onhashchange = () => location.reload(); // TODO do this properly
     });
   }
 }
