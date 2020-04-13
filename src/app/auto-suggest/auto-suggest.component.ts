@@ -1,24 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import * as Fuse from 'fuse.js/dist/fuse.js';
-import { CdsFetcherService, NUM_CASES_CUTOFF } from '../cds-fetcher.service';
-
-const VISUALLY_DISTINCT_COLORS = [
-  '#767833',
-  '#6f68d9',
-  '#7ab644',
-  '#b84cb5',
-  '#d0a048',
-  '#57ac74',
-  '#d23d72',
-  '#ca8fd9',
-  '#5e64a9',
-  '#9b4c7d',
-  '#d15133',
-  '#4bbab3',
-  '#67a1db',
-  '#e2869f',
-  '#b25d4a',
-];
+import { CovidGraphDefinition } from 'src/lib/URLState';
+import { LocationSearchService } from '../location-search.service';
+import URLState from '../../lib/URLState';
 
 @Component({
   selector: 'auto-suggest',
@@ -28,11 +12,17 @@ const VISUALLY_DISTINCT_COLORS = [
 export class AutoSuggestComponent implements OnInit {
   searchableLocations: Fuse<string, any>;
   suggestions: Fuse.FuseResult<string>[];
-  constructor(private cdsFetcherService: CdsFetcherService) {
-    cdsFetcherService.data.subscribe((data) => {
-      this.searchableLocations = new Fuse(Object.keys(data), {
-        threshold: 0.3,
-      });
+
+  @Input() index?: number;
+  @Input() graphDefinitions: CovidGraphDefinition[];
+
+  updateGraph: (a: number, b: CovidGraphDefinition) => void;
+  constructor(private locationSearchService: LocationSearchService) {
+    locationSearchService.locations.subscribe((locations) => {
+      this.searchableLocations = locations;
+    });
+    window.addEventListener('click', () => {
+      this.suggestions = [];
     });
   }
 
@@ -43,18 +33,15 @@ export class AutoSuggestComponent implements OnInit {
         .slice(0, 10);
   };
 
-  clearAll = () => {
-    window.location.hash = '';
+  addLocation = ({ location }) => {
+    this.graphDefinitions[this.index].locations.push(location);
+    URLState.serialize(this.graphDefinitions);
   };
 
-  addLocation = (location) => {
-    if (!window.location.hash) {
-      window.location.hash = `#locations=${location},&num_cases_cutoff=10`;
-    } else {
-      let t = location.replace(/, /g, '++').replace(/ /g, '+');
-      window.location.hash = window.location.hash.replace(',&', `,${t},&`);
-    }
-    this.suggestions = [];
+  clearAll = () => {
+    this.graphDefinitions[this.index].locations = [];
+    URLState.serialize(this.graphDefinitions);
   };
+
   ngOnInit(): void {}
 }

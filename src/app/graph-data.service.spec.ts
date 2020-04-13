@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { CdsFetcherService } from './cds-fetcher.service';
+import { GraphDataService } from './graph-data.service';
 
-describe('CdsFetcherService', () => {
-  let service: CdsFetcherService;
+describe('GraphDataService', () => {
+  let service: GraphDataService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(CdsFetcherService);
+    service = TestBed.inject(GraphDataService);
   });
 
   it('should be created', () => {

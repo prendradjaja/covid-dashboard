@@ -78,7 +78,7 @@ export class MultiLineChartComponent implements OnInit {
       .domain(this.xAxisBounds || d3.extent(data.dates as Number[]))
       .range([margin.left, width - margin.right]);
 
-    console.log(this.xScale.domain(), this.yScale.domain());
+    //console.log(this.xScale.domain(), this.yScale.domain());
 
     const xAxis = (g) =>
       g
@@ -188,7 +188,6 @@ export class MultiLineChartComponent implements OnInit {
       if (self.animate) {
         // @ts-ignore
         path._groups[0].forEach((node, index) => {
-          console.log(VISUALLY_DISTINCT_COLORS[index]);
           let length = node.getTotalLength();
           d3.select(node)
             .attr('stroke-dasharray', length)
