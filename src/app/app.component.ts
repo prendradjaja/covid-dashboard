@@ -5,6 +5,7 @@ import { GraphConfigurationService } from './graph-configuration.service';
 import { CovidGraphDefinition } from 'src/lib/URLState';
 import { combineLatest } from 'rxjs';
 import zipWith from 'lodash/zipWith';
+import URLState from '../lib/URLState';
 
 interface Graph {
   data: Series[];
@@ -19,10 +20,9 @@ interface Graph {
 export class AppComponent {
   title = 'angular9covid-dashboard';
   graphs: Graph[];
-  allGraphDefinitions: CovidGraphDefinition[]; // TODO refactor AutoSuggestComponent so that we can delete this and just depend on .graphs
 
   isEditing = false;
-  editingIndex: number;
+  editingIndex: number = 0;
 
   constructor(
     private graphDataService: GraphDataService,
@@ -37,7 +37,6 @@ export class AppComponent {
         graphDefinitions,
         (data, definition) => ({ data, definition })
       );
-      this.allGraphDefinitions = graphDefinitions;
     });
   }
 
@@ -48,5 +47,19 @@ export class AppComponent {
 
   stopEditing(): void {
     this.isEditing = false;
+  }
+
+  handleAddLocation(location)  {
+    this.graphs[this.editingIndex].definition.locations.push(location);
+    URLState.serialize(this.graphDefinitions);
+  }
+
+  handleClearAll() {
+    this.graphDefinitions[this.editingIndex].locations = [];
+    URLState.serialize(this.graphDefinitions);
+  };
+
+  private get graphDefinitions(): CovidGraphDefinition[] {
+    return this.graphs.map(graph => graph.definition);
   }
 }

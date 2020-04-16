@@ -1,8 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import * as Fuse from 'fuse.js/dist/fuse.js';
 import { CovidGraphDefinition } from 'src/lib/URLState';
 import { LocationSearchService } from '../location-search.service';
-import URLState from '../../lib/URLState';
 
 @Component({
   selector: 'auto-suggest',
@@ -13,8 +12,11 @@ export class AutoSuggestComponent implements OnInit {
   searchableLocations: Fuse<string, any>;
   suggestions: Fuse.FuseResult<string>[];
 
-  @Input() index?: number;
-  @Input() graphDefinitions: CovidGraphDefinition[];
+  // @Input() index?: number;
+  // @Input() graphDefinitions: CovidGraphDefinition[];
+
+  @Output() addLocation = new EventEmitter<string>();
+  @Output() clearAll = new EventEmitter<void>();
 
   updateGraph: (a: number, b: CovidGraphDefinition) => void;
   constructor(private locationSearchService: LocationSearchService) {
@@ -33,14 +35,16 @@ export class AutoSuggestComponent implements OnInit {
         .slice(0, 10);
   };
 
-  addLocation = ({ location }) => {
-    this.graphDefinitions[this.index].locations.push(location);
-    URLState.serialize(this.graphDefinitions);
+  handleAddLocation = ({ location }) => {
+    this.addLocation.next(location);
+    // this.graphDefinitions[this.index].locations.push(location);
+    // URLState.serialize(this.graphDefinitions);
   };
 
-  clearAll = () => {
-    this.graphDefinitions[this.index].locations = [];
-    URLState.serialize(this.graphDefinitions);
+  handleClearAll = () => {
+    this.clearAll.next();
+    // this.graphDefinitions[this.index].locations = [];
+    // URLState.serialize(this.graphDefinitions);
   };
 
   ngOnInit(): void {}

@@ -28,10 +28,11 @@
     </button>
   </div>
   <auto-suggest
-    [index]="editingIndex"
-    [graphDefinitions]="allGraphDefinitions"
+    (addLocation)="handleAddLocation($event)"
+    (clearAll)="handleClearAll()"
   ></auto-suggest>
   <multi-line-chart
+    *ngIf="graphs && graphs[editingIndex]"
     yAxisLabel="Total cases by country"
     xAxisLabel="Days since {{ graphs[editingIndex].definition.cutoff }} cases"
     [data]="graphs[editingIndex].data"
