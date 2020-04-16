@@ -6,6 +6,9 @@ import { CovidGraphDefinition } from 'src/lib/URLState';
 import { combineLatest } from 'rxjs';
 import zipWith from 'lodash/zipWith';
 
+// if you're getting an error bc this doesn't exist, run git-version.sh
+import { version } from '../environments/version';
+
 interface Graph {
   data: Series[];
   definition: CovidGraphDefinition;
@@ -24,10 +27,13 @@ export class AppComponent {
   isEditing = false;
   editingIndex: number;
 
+  version: typeof version;
+
   constructor(
     private graphDataService: GraphDataService,
     private graphConfigurationService: GraphConfigurationService
   ) {
+    // TODO should all this be in ngOnInit?
     combineLatest([
       graphDataService.graphData,
       graphConfigurationService.graphDefinitions,
@@ -39,6 +45,7 @@ export class AppComponent {
       );
       this.allGraphDefinitions = graphDefinitions;
     });
+    this.version = version;
   }
 
   startEditing(index: number) {
