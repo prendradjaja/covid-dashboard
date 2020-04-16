@@ -7,6 +7,7 @@ import { ExampleComponent } from './example/example.component';
 import { Example2Component } from './example2/example2.component';
 import { MultiLineChartComponent } from './multi-line-chart/multi-line-chart.component';
 import { AutoSuggestComponent } from './auto-suggest/auto-suggest.component';
+import { NumberInputComponent } from './number-input/number-input.component';
 
 @NgModule({
   declarations: [
@@ -15,6 +16,7 @@ import { AutoSuggestComponent } from './auto-suggest/auto-suggest.component';
     Example2Component,
     MultiLineChartComponent,
     AutoSuggestComponent,
+    NumberInputComponent,
   ],
   imports: [BrowserModule, AppRoutingModule],
   providers: [],

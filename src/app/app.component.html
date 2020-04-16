@@ -27,10 +27,6 @@
       Back
     </button>
   </div>
-  <auto-suggest
-    [index]="editingIndex"
-    [graphDefinitions]="allGraphDefinitions"
-  ></auto-suggest>
   <multi-line-chart
     yAxisLabel="Total cases by country"
     xAxisLabel="Days since {{ graphs[editingIndex].definition.cutoff }} cases"
@@ -39,4 +35,13 @@
     [yAxisBounds]="graphs[editingIndex].definition.y_axis_bounds"
   >
   </multi-line-chart>
+  <auto-suggest
+    [index]="editingIndex"
+    [graphDefinitions]="allGraphDefinitions"
+  ></auto-suggest>
+  <number-input
+    label="x min"
+    (setValue)="setXMin($event)"
+  >
+  </number-input>
 </ng-template>
