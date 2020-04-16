@@ -8,6 +8,8 @@
     xAxisLabel="Days since {{ graphDefinitions[i].cutoff }} cases"
     [data]="graph"
     [animate]="true"
+    [xAxisBounds]="graphDefinitions[i].x_axis_bounds"
+    [yAxisBounds]="graphDefinitions[i].y_axis_bounds"
   >
   </multi-line-chart>
 </ng-container>
