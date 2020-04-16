@@ -1,14 +1,14 @@
-<ng-container *ngFor="let graph of graphData; let i = index">
+<ng-container *ngFor="let graph of graphs; let i = index">
   <auto-suggest
     [index]="i"
-    [graphDefinitions]="graphDefinitions"
+    [graphDefinitions]="allGraphDefinitions"
   ></auto-suggest>
   <multi-line-chart
     yAxisLabel="Total cases by country"
-    xAxisLabel="Days since {{ graphDefinitions[i].cutoff }} cases"
-    [data]="graph"
-    [xAxisBounds]="graphDefinitions[i].x_axis_bounds"
-    [yAxisBounds]="graphDefinitions[i].y_axis_bounds"
+    xAxisLabel="Days since {{ graph.definition.cutoff }} cases"
+    [data]="graph.data"
+    [xAxisBounds]="graph.definition.x_axis_bounds"
+    [yAxisBounds]="graph.definition.y_axis_bounds"
   >
   </multi-line-chart>
 </ng-container>

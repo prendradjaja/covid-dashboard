@@ -4,6 +4,12 @@ import { GraphDataService } from './graph-data.service';
 import { GraphConfigurationService } from './graph-configuration.service';
 import { CovidGraphDefinition } from 'src/lib/URLState';
 import { combineLatest } from 'rxjs';
+import zipWith from 'lodash/zipWith';
+
+interface Graph {
+  data: Series[];
+  definition: CovidGraphDefinition;
+}
 
 @Component({
   selector: 'app-root',
@@ -12,8 +18,8 @@ import { combineLatest } from 'rxjs';
 })
 export class AppComponent {
   title = 'angular9covid-dashboard';
-  graphData: Series[][];
-  graphDefinitions: CovidGraphDefinition[];
+  graphs: Graph[];
+  allGraphDefinitions: CovidGraphDefinition[]; // TODO refactor AutoSuggestComponent so that we can delete this and just depend on .graphs
   constructor(
     private graphDataService: GraphDataService,
     private graphConfigurationService: GraphConfigurationService
@@ -22,8 +28,12 @@ export class AppComponent {
       graphDataService.graphData,
       graphConfigurationService.graphDefinitions,
     ]).subscribe(([graphData, graphDefinitions]) => {
-      this.graphData = graphData;
-      this.graphDefinitions = graphDefinitions;
+      this.graphs = zipWith(
+        graphData,
+        graphDefinitions,
+        (data, definition) => ({ data, definition })
+      );
+      this.allGraphDefinitions = graphDefinitions;
     });
   }
 }
