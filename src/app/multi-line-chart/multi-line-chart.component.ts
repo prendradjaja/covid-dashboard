@@ -227,6 +227,28 @@ export class MultiLineChartComponent implements OnInit {
           )
       );
 
+      // x axis label
+      svg
+        .append('text')
+        .attr('font-family', 'sans-serif')
+        .attr('font-size', 10)
+        .attr('y', self.height)
+        .attr('x', self.width - 10)
+        .attr('text-anchor', 'end')
+        .attr('font-weight', 'bold')
+        .text(data.x);
+
+      // y axis label
+      svg
+        .append('text')
+        .attr('font-family', 'sans-serif')
+        .attr('font-size', 10)
+        .attr('y', 10)
+        .attr('x', 10)
+        .attr('text-anchor', 'start')
+        .attr('font-weight', 'bold')
+        .text(data.y);
+
       svg.call(hover, path);
 
       return svg.node();
