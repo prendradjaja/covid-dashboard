@@ -3,6 +3,7 @@ import { Series } from './multi-line-chart/multi-line-chart.component';
 import { GraphDataService } from './graph-data.service';
 import { GraphConfigurationService } from './graph-configuration.service';
 import { CovidGraphDefinition } from 'src/lib/URLState';
+import { combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -17,12 +18,12 @@ export class AppComponent {
     private graphDataService: GraphDataService,
     private graphConfigurationService: GraphConfigurationService
   ) {
-    graphDataService.graphData.subscribe((graphData) => {
+    combineLatest([
+      graphDataService.graphData,
+      graphConfigurationService.graphDefinitions,
+    ]).subscribe(([graphData, graphDefinitions]) => {
       this.graphData = graphData;
+      this.graphDefinitions = graphDefinitions;
     });
-
-    graphConfigurationService.graphDefinitions.subscribe(
-      (graphDefinitions) => (this.graphDefinitions = graphDefinitions)
-    );
   }
 }
