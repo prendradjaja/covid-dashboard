@@ -32,7 +32,7 @@
     [graphDefinitions]="allGraphDefinitions"
   ></auto-suggest>
   <multi-line-chart
-    yAxisLabel="Total cases by country"
+    yAxisLabel="Number of confirmed cases"
     xAxisLabel="Days since {{ graphs[editingIndex].definition.cutoff }} cases"
     [data]="graphs[editingIndex].data"
     [xAxisBounds]="graphs[editingIndex].definition.x_axis_bounds"
