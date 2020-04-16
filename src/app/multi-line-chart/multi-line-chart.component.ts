@@ -186,19 +186,17 @@ export class MultiLineChartComponent implements OnInit {
         .style('mix-blend-mode', 'multiply')
         .attr('d', (d) => line(d.values as any));
 
-      if (self.animate) {
-        // @ts-ignore
-        path._groups[0].forEach((node, index) => {
-          let length = node.getTotalLength();
-          d3.select(node)
-            .attr('stroke-dasharray', length)
-            .attr('stroke-dashoffset', length)
-            .attr('stroke', VISUALLY_DISTINCT_COLORS[index])
-            .transition()
-            .duration(2000)
-            .attr('stroke-dashoffset', 0);
-        });
-      }
+      // @ts-ignore
+      path._groups[0].forEach((node, index) => {
+        let length = node.getTotalLength();
+        d3.select(node)
+          .attr('stroke-dasharray', length)
+          .attr('stroke-dashoffset', length)
+          .attr('stroke', VISUALLY_DISTINCT_COLORS[index])
+          .transition()
+          .duration(self.animate ? 2000 : 0)
+          .attr('stroke-dashoffset', 0);
+      });
 
       // Grid lines
       svg.append('g').call((g) =>
