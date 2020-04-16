@@ -1,0 +1,21 @@
+<input placeholder="Add a location" (keyup)="locationSearch($event)" />
+<br />
+<button (click)="clearAll()">
+  Clear locations
+</button>
+<div
+  class="suggestion-container"
+  *ngIf="suggestions != null && suggestions.length"
+>
+  <ng-container *ngFor="let suggestion of suggestions">
+    <div class="suggestion" (click)="addLocation(suggestion.item)">
+      {{ suggestion.item.location }}
+      <a
+        [href]="suggestion.item.source.url"
+        target="_blank"
+        rel="noopener noreferrer"
+        >(Source: {{ suggestion.item.source.name }})</a
+      >
+    </div>
+  </ng-container>
+</div>

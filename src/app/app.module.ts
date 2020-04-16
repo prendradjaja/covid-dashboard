@@ -6,19 +6,18 @@ import { AppComponent } from './app.component';
 import { ExampleComponent } from './example/example.component';
 import { Example2Component } from './example2/example2.component';
 import { MultiLineChartComponent } from './multi-line-chart/multi-line-chart.component';
+import { AutoSuggestComponent } from './auto-suggest/auto-suggest.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ExampleComponent,
     Example2Component,
-    MultiLineChartComponent
+    MultiLineChartComponent,
+    AutoSuggestComponent,
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule
-  ],
+  imports: [BrowserModule, AppRoutingModule],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
