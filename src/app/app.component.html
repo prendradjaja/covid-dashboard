@@ -11,6 +11,7 @@
         yAxisLabel="Number of confirmed cases"
         xAxisLabel="Days since {{ graph.definition.cutoff }} cases"
         [data]="graph.data"
+        [animate]="graph.definition.animate"
         [xAxisBounds]="graph.definition.x_axis_bounds"
         [yAxisBounds]="graph.definition.y_axis_bounds"
       >

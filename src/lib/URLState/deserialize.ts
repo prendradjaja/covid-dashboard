@@ -30,6 +30,7 @@ const OPTIONS = {
 // TODO Probably don't need two places for defaults (Here and optional params in MultiLineChartComponent)
 const DEFAULT_GRAPH_PROPERTIES = {
   cutoff: 10,
+  animate: false,
 };
 
 const parseQueryString = (queryString) => qs.parse(queryString, OPTIONS);
