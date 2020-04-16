@@ -1,14 +1,42 @@
-<ng-container *ngFor="let graph of graphs; let i = index">
+<ng-container *ngIf="!isEditing; else editor">
+  <ng-container *ngFor="let graph of graphs; let i = index">
+    <div class="chart-container">
+      <button
+        class="edit"
+        (click)="startEditing(i)"
+      >
+        Edit
+      </button>
+      <multi-line-chart
+        yAxisLabel="Total cases by country"
+        xAxisLabel="Days since {{ graph.definition.cutoff }} cases"
+        [data]="graph.data"
+        [xAxisBounds]="graph.definition.x_axis_bounds"
+        [yAxisBounds]="graph.definition.y_axis_bounds"
+      >
+      </multi-line-chart>
+    </div>
+  </ng-container>
+</ng-container>
+<ng-template #editor>
+  <div>
+    <button
+      class="back"
+      (click)="stopEditing()"
+    >
+      Back
+    </button>
+  </div>
   <auto-suggest
-    [index]="i"
+    [index]="editingIndex"
     [graphDefinitions]="allGraphDefinitions"
   ></auto-suggest>
   <multi-line-chart
     yAxisLabel="Total cases by country"
-    xAxisLabel="Days since {{ graph.definition.cutoff }} cases"
-    [data]="graph.data"
-    [xAxisBounds]="graph.definition.x_axis_bounds"
-    [yAxisBounds]="graph.definition.y_axis_bounds"
+    xAxisLabel="Days since {{ graphs[editingIndex].definition.cutoff }} cases"
+    [data]="graphs[editingIndex].data"
+    [xAxisBounds]="graphs[editingIndex].definition.x_axis_bounds"
+    [yAxisBounds]="graphs[editingIndex].definition.y_axis_bounds"
   >
   </multi-line-chart>
-</ng-container>
+</ng-template>

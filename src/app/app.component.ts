@@ -20,6 +20,10 @@ export class AppComponent {
   title = 'angular9covid-dashboard';
   graphs: Graph[];
   allGraphDefinitions: CovidGraphDefinition[]; // TODO refactor AutoSuggestComponent so that we can delete this and just depend on .graphs
+
+  isEditing = false;
+  editingIndex: number;
+
   constructor(
     private graphDataService: GraphDataService,
     private graphConfigurationService: GraphConfigurationService
@@ -35,5 +39,14 @@ export class AppComponent {
       );
       this.allGraphDefinitions = graphDefinitions;
     });
+  }
+
+  startEditing(index: number) {
+    this.isEditing = true;
+    this.editingIndex = index;
+  }
+
+  stopEditing(): void {
+    this.isEditing = false;
   }
 }
