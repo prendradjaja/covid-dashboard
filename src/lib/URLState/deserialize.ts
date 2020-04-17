@@ -29,7 +29,7 @@ const OPTIONS = {
 // Default properties for our covid Graph Definitions
 // TODO Probably don't need two places for defaults (Here and optional params in MultiLineChartComponent)
 const DEFAULT_GRAPH_PROPERTIES = {
-  cutoff: 10,
+  cutoff: 100,
   animate: false,
 };
 
