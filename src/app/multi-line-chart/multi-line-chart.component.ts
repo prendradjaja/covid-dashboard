@@ -49,6 +49,7 @@ export class MultiLineChartComponent implements OnInit {
   private yScale: d3.ScaleContinuousNumeric<number, number>;
 
   private margin = { top: 20, right: 20, bottom: 30, left: 60 };
+  private dates: number[];
 
   constructor(private elementRef: ElementRef) {}
 
@@ -58,21 +59,21 @@ export class MultiLineChartComponent implements OnInit {
     Line1 FOOBAR	200.6	2000.6	20.6	2.6	2.7
     Line2 BOOFAR	300.7	30.6	3.6	-10.5 2000.4`;
 
-    const data = {
-      series: this.data,
-      dates: times(Math.max(...this.data.map((v) => v.values.length)), Number),
-    };
+    this.dates = times(
+      Math.max(...this.data.map((v) => v.values.length)),
+      Number
+    );
 
     this.yScale = d3
       .scaleLog()
       .domain(
-        this.yAxisBounds || [1, d3.max(data.series, (d) => d3.max(d.values))]
+        this.yAxisBounds || [1, d3.max(this.data, (d) => d3.max(d.values))]
       )
       .range([this.height - this.margin.bottom, this.margin.top]);
 
     this.xScale = d3
       .scaleLinear()
-      .domain(this.xAxisBounds || d3.extent(data.dates as Number[]))
+      .domain(this.xAxisBounds || d3.extent(this.dates as Number[]))
       .range([this.margin.left, this.width - this.margin.right]);
 
     //console.log(this.xScale.domain(), this.yScale.domain());
@@ -98,7 +99,7 @@ export class MultiLineChartComponent implements OnInit {
     const line = d3
       .line()
       .defined((d) => !isNaN(d as any))
-      .x((d, i) => this.xScale(data.dates[i]))
+      .x((d, i) => this.xScale(this.dates[i]))
       .y((d) => this.yScale(d as any));
 
     function hover(svg, path) {
@@ -131,17 +132,17 @@ export class MultiLineChartComponent implements OnInit {
         d3.event.preventDefault();
         const ym = self.yScale.invert(d3.event.layerY - boundingRect.top);
         const xm = self.xScale.invert(d3.event.layerX - boundingRect.left);
-        const i1 = d3.bisectLeft(data.dates, xm, 1);
+        const i1 = d3.bisectLeft(self.dates, xm, 1);
         const i0 = i1 - 1;
         // @ts-ignore
-        const i = xm - data.dates[i0] > data.dates[i1] - xm ? i1 : i0;
-        const s = (d3Array as any).least(data.series, (d) =>
+        const i = xm - self.dates[i0] > self.dates[i1] - xm ? i1 : i0;
+        const s = (d3Array as any).least(self.data, (d) =>
           Math.abs(Math.log10(d.values[i]) - Math.log10(ym))
         );
         path.filter((d) => d === s).raise();
         dot.attr(
           'transform',
-          `translate(${self.xScale(data.dates[i])},${self.yScale(s.values[i])})`
+          `translate(${self.xScale(self.dates[i])},${self.yScale(s.values[i])})`
         );
         const comment = s.comments ? '— ' + s.comments[i] : '';
         dot
@@ -179,7 +180,7 @@ export class MultiLineChartComponent implements OnInit {
         .attr('stroke-linejoin', 'round')
         .attr('stroke-linecap', 'round')
         .selectAll('path')
-        .data(data.series)
+        .data(self.data)
         .join('path')
         .style('mix-blend-mode', 'multiply')
         .attr('d', (d) => line(d.values as any));
