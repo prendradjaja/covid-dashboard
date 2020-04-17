@@ -14,6 +14,7 @@
         [animate]="graph.definition.animate"
         [xAxisBounds]="graph.definition.x_axis_bounds"
         [yAxisBounds]="graph.definition.y_axis_bounds"
+        [yAxisScale]="graph.definition.y_axis_scale"
       >
       </multi-line-chart>
     </div>
@@ -38,6 +39,7 @@
     [data]="graphs[editingIndex].data"
     [xAxisBounds]="graphs[editingIndex].definition.x_axis_bounds"
     [yAxisBounds]="graphs[editingIndex].definition.y_axis_bounds"
+    [yAxisScale]="graphs[editingIndex].definition.y_axis_scale"
   >
   </multi-line-chart>
 </ng-template>

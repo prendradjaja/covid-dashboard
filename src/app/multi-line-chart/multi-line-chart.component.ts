@@ -2,6 +2,8 @@ import { Component, OnInit, ElementRef, Input } from '@angular/core';
 import * as d3 from 'd3';
 import * as d3Array from 'd3-array';
 import times from 'lodash/times';
+import { AxisScale } from 'src/lib/URLState';
+import { UnreachableCaseError } from 'ts-essentials';
 
 export type Series = {
   name: string;
@@ -42,6 +44,7 @@ export class MultiLineChartComponent implements OnInit {
   @Input() animate: boolean = false;
   @Input() xAxisBounds?: [number, number];
   @Input() yAxisBounds?: [number, number];
+  @Input() yAxisScale: AxisScale;
   @Input() width?: number = 500;
   @Input() height?: number = 300;
 
@@ -64,12 +67,7 @@ export class MultiLineChartComponent implements OnInit {
       Number
     );
 
-    this.yScale = d3
-      .scaleLog()
-      .domain(
-        this.yAxisBounds || [1, d3.max(this.data, (d) => d3.max(d.values))]
-      )
-      .range([this.height - this.margin.bottom, this.margin.top]);
+    this.yScale = this.getYScale();
 
     this.xScale = d3
       .scaleLinear()
@@ -268,13 +266,36 @@ export class MultiLineChartComponent implements OnInit {
   }
 
   private getCasesTicks(): number[] {
-    const [min, max] = this.yScale.domain();
-    const result = [];
-    for (let i = 1; i <= max; i *= 10) {
-      if (i >= min) {
-        result.push(i);
+    if (this.yAxisScale === AxisScale.log) {
+      const [min, max] = this.yScale.domain();
+      const result = [];
+      for (let i = 1; i <= max; i *= 10) {
+        if (i >= min) {
+          result.push(i);
+        }
       }
+      return result;
+    } else if (this.yAxisScale === AxisScale.linear) {
+      return this.yScale.ticks();
+    } else {
+      throw new UnreachableCaseError(this.yAxisScale);
     }
-    return result;
+  }
+
+  private getYScale(): d3.ScaleContinuousNumeric<number, number> {
+    let scale: d3.ScaleContinuousNumeric<number, number>;
+    if (this.yAxisScale === AxisScale.linear) {
+      scale = d3.scaleLinear();
+    } else if (this.yAxisScale === AxisScale.log) {
+      scale = d3.scaleLog();
+    } else {
+      throw new UnreachableCaseError(this.yAxisScale);
+    }
+
+    return scale
+      .domain(
+        this.yAxisBounds || [1, d3.max(this.data, (d) => d3.max(d.values))]
+      )
+      .range([this.height - this.margin.bottom, this.margin.top]);
   }
 }

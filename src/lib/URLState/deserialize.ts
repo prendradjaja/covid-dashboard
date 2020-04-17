@@ -1,5 +1,5 @@
 import qs from 'qs';
-import { CovidGraphDefinition } from './types';
+import { CovidGraphDefinition, AxisScale } from './types';
 ///////////////////////////
 // URL State Deserializer
 /////////////////////////
@@ -31,6 +31,7 @@ const OPTIONS = {
 const DEFAULT_GRAPH_PROPERTIES = {
   cutoff: 100,
   animate: false,
+  y_axis_scale: AxisScale.log,
 };
 
 const parseQueryString = (queryString) => qs.parse(queryString, OPTIONS);
