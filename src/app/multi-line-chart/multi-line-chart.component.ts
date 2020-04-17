@@ -41,7 +41,7 @@ export class MultiLineChartComponent implements OnInit {
   // - all the dates are contiguous
   // - all the serieses are of the same length & the same dates
   @Input() data: Series[];
-  @Input() animate: boolean = false;
+  public animate: boolean = false; // Temporarily ignoring due to deserializer bug. TODO re-enable
   @Input() xAxisBounds?: [number, number];
   @Input() yAxisBounds?: [number, number];
   @Input() yAxisScale: AxisScale;
