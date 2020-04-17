@@ -5,6 +5,7 @@ import { GraphConfigurationService } from './graph-configuration.service';
 import { CovidGraphDefinition } from 'src/lib/URLState';
 import { combineLatest } from 'rxjs';
 import zipWith from 'lodash/zipWith';
+import URLState from '../lib/URLState';
 
 // if you're getting an error bc this doesn't exist, run git-version.sh
 import { version } from '../environments/version';
@@ -57,5 +58,18 @@ export class AppComponent {
 
   stopEditing(): void {
     this.isEditing = false;
+  }
+
+  setXMin(value: number): void {
+    this.updateProperty('x_axis_bounds', [value, 100])
+  }
+
+  private updateProperty(key: string, value: any): void {
+    this.graphs[this.editingIndex].definition[key] = value;
+    URLState.serialize(this.graphDefinitions);
+  }
+
+  private get graphDefinitions(): CovidGraphDefinition[] {
+    return this.graphs.map(graph => graph.definition)
   }
 }
