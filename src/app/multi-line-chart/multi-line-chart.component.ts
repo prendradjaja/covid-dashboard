@@ -59,8 +59,6 @@ export class MultiLineChartComponent implements OnInit {
     Line2 BOOFAR	300.7	30.6	3.6	-10.5 2000.4`;
 
     const data = {
-      y: this.yAxisLabel,
-      x: this.xAxisLabel,
       series: this.data,
       dates: times(Math.max(...this.data.map((v) => v.values.length)), Number),
     };
@@ -236,7 +234,7 @@ export class MultiLineChartComponent implements OnInit {
         .attr('x', self.width - 10)
         .attr('text-anchor', 'end')
         .attr('font-weight', 'bold')
-        .text(data.x);
+        .text(self.xAxisLabel);
 
       // y axis label
       svg
@@ -247,7 +245,7 @@ export class MultiLineChartComponent implements OnInit {
         .attr('x', 10)
         .attr('text-anchor', 'start')
         .attr('font-weight', 'bold')
-        .text(data.y);
+        .text(self.yAxisLabel);
 
       svg.call(hover, path);
 
