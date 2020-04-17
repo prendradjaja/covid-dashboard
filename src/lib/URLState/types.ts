@@ -4,6 +4,7 @@ export enum AxisScale {
 }
 
 export type CovidGraphDefinition = {
+  title?: string;
   locations: string[];
   cutoff: number;
   data_type: string;

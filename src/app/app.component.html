@@ -10,6 +10,7 @@
       <multi-line-chart
         yAxisLabel="Number of confirmed cases"
         xAxisLabel="Days since {{ graph.definition.cutoff }} cases"
+        [title]="graph.definition.title"
         [data]="graph.data"
         [animate]="graph.definition.animate"
         [xAxisBounds]="graph.definition.x_axis_bounds"
@@ -36,6 +37,7 @@
   <multi-line-chart
     yAxisLabel="Number of confirmed cases"
     xAxisLabel="Days since {{ graphs[editingIndex].definition.cutoff }} cases"
+    [title]="graphs[editingIndex].definition.title"
     [data]="graphs[editingIndex].data"
     [xAxisBounds]="graphs[editingIndex].definition.x_axis_bounds"
     [yAxisBounds]="graphs[editingIndex].definition.y_axis_bounds"

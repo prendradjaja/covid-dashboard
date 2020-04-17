@@ -18,6 +18,7 @@ export type Series = {
   styleUrls: ['./multi-line-chart.component.less'],
 })
 export class MultiLineChartComponent implements OnInit {
+  @Input() title: string;
   @Input() yAxisLabel: string;
   @Input() xAxisLabel: string;
   // TODO: fix these bad assumptions:
@@ -216,8 +217,8 @@ export class MultiLineChartComponent implements OnInit {
         .append('text')
         .attr('font-family', 'sans-serif')
         .attr('font-size', 10)
-        .attr('y', self.height)
-        .attr('x', self.width - 10)
+        .attr('y', self.height - 40)
+        .attr('x', self.width - 25)
         .attr('text-anchor', 'end')
         .attr('font-weight', 'bold')
         .text(self.xAxisLabel);
@@ -227,8 +228,8 @@ export class MultiLineChartComponent implements OnInit {
         .append('text')
         .attr('font-family', 'sans-serif')
         .attr('font-size', 10)
-        .attr('y', 10)
-        .attr('x', 10)
+        .attr('y', 35)
+        .attr('x', 70)
         .attr('text-anchor', 'start')
         .attr('font-weight', 'bold')
         .text(self.yAxisLabel);
