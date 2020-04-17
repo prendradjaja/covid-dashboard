@@ -48,6 +48,8 @@ export class MultiLineChartComponent implements OnInit {
   private xScale: d3.ScaleContinuousNumeric<number, number>;
   private yScale: d3.ScaleContinuousNumeric<number, number>;
 
+  private margin = { top: 20, right: 20, bottom: 30, left: 60 };
+
   constructor(private elementRef: ElementRef) {}
 
   ngOnInit(): void {
@@ -55,8 +57,6 @@ export class MultiLineChartComponent implements OnInit {
     const rawData = `name	2000-01	2000-02	2000-03	2000-04	2000-05
     Line1 FOOBAR	200.6	2000.6	20.6	2.6	2.7
     Line2 BOOFAR	300.7	30.6	3.6	-10.5 2000.4`;
-
-    const margin = { top: 20, right: 20, bottom: 30, left: 60 };
 
     const data = {
       y: this.yAxisLabel,
@@ -70,18 +70,18 @@ export class MultiLineChartComponent implements OnInit {
       .domain(
         this.yAxisBounds || [1, d3.max(data.series, (d) => d3.max(d.values))]
       )
-      .range([this.height - margin.bottom, margin.top]);
+      .range([this.height - this.margin.bottom, this.margin.top]);
 
     this.xScale = d3
       .scaleLinear()
       .domain(this.xAxisBounds || d3.extent(data.dates as Number[]))
-      .range([margin.left, this.width - margin.right]);
+      .range([this.margin.left, this.width - this.margin.right]);
 
     //console.log(this.xScale.domain(), this.yScale.domain());
 
     const xAxis = (g) =>
       g
-        .attr('transform', `translate(0,${this.height - margin.bottom})`)
+        .attr('transform', `translate(0,${this.height - this.margin.bottom})`)
         .call(
           d3
             .axisBottom(this.xScale)
@@ -90,7 +90,7 @@ export class MultiLineChartComponent implements OnInit {
         );
 
     const yAxis = (g) =>
-      g.attr('transform', `translate(${margin.left},0)`).call(
+      g.attr('transform', `translate(${this.margin.left},0)`).call(
         d3
           .axisLeft(this.yScale)
           .tickValues(this.getCasesTicks())
@@ -211,8 +211,8 @@ export class MultiLineChartComponent implements OnInit {
               .join('line')
               .attr('x1', (d) => 0.5 + self.xScale(d))
               .attr('x2', (d) => 0.5 + self.xScale(d))
-              .attr('y1', margin.top)
-              .attr('y2', self.height - margin.bottom)
+              .attr('y1', self.margin.top)
+              .attr('y2', self.height - self.margin.bottom)
           )
           .call((g) =>
             g
@@ -222,8 +222,8 @@ export class MultiLineChartComponent implements OnInit {
               .join('line')
               .attr('y1', (d) => 0.5 + self.yScale(d))
               .attr('y2', (d) => 0.5 + self.yScale(d))
-              .attr('x1', margin.left)
-              .attr('x2', self.width - margin.right)
+              .attr('x1', self.margin.left)
+              .attr('x2', self.width - self.margin.right)
           )
       );
 
