@@ -4,30 +4,13 @@ import * as d3Array from 'd3-array';
 import times from 'lodash/times';
 import { AxisScale } from 'src/lib/URLState';
 import { UnreachableCaseError } from 'ts-essentials';
+import { ColorService } from '../color.service';
 
 export type Series = {
   name: string;
   values: number[];
   comments?: string[];
 };
-
-const VISUALLY_DISTINCT_COLORS = [
-  '#767833',
-  '#6f68d9',
-  '#7ab644',
-  '#b84cb5',
-  '#d0a048',
-  '#57ac74',
-  '#d23d72',
-  '#ca8fd9',
-  '#5e64a9',
-  '#9b4c7d',
-  '#d15133',
-  '#4bbab3',
-  '#67a1db',
-  '#e2869f',
-  '#b25d4a',
-];
 
 @Component({
   selector: 'multi-line-chart',
@@ -55,7 +38,10 @@ export class MultiLineChartComponent implements OnInit {
   private margin = { top: 20, right: 20, bottom: 30, left: 60 };
   private dates: number[];
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(
+    private elementRef: ElementRef,
+    private colorService: ColorService
+  ) {}
 
   ngOnInit(): void {
     let self = this;
@@ -190,7 +176,7 @@ export class MultiLineChartComponent implements OnInit {
         d3.select(node)
           .attr('stroke-dasharray', length)
           .attr('stroke-dashoffset', length)
-          .attr('stroke', VISUALLY_DISTINCT_COLORS[index])
+          .attr('stroke', self.colorService.getColor(self.data[index].name))
           .transition()
           .duration(self.animate ? 2000 : 0)
           .attr('stroke-dashoffset', 0);
