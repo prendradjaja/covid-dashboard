@@ -57,5 +57,18 @@
   >Pandu</a>
   (<a href="https://github.com/prendradjaja/covid-dashboard" target="_blank" rel="noopener noreferrer">repo</a>)
 
-  <span class="git-version">&mdash; {{version.commit}}{{version.untrackedMark}} ({{version.branch}})</span>
+  <span class="developer-info">
+    &mdash;
+    {{version.commit}}{{version.untrackedMark}} ({{version.branch}})
+    &mdash;
+    <a href="http://localhost:4200/#{{ route.fragment | async }}"
+      target="_blank"
+      rel="noopener noreferrer"
+    >Local</a>
+    /
+    <a href="https://personal-covid-dashboard.web.app/#{{ route.fragment | async }}"
+      target="_blank"
+      rel="noopener noreferrer"
+    >Hosted</a>
+  </span>
 </footer>

@@ -8,6 +8,7 @@ import zipWith from 'lodash/zipWith';
 
 // if you're getting an error bc this doesn't exist, run git-version.sh
 import { version } from '../environments/version';
+import { ActivatedRoute } from '@angular/router';
 
 interface Graph {
   data: Series[];
@@ -31,7 +32,8 @@ export class AppComponent {
 
   constructor(
     private graphDataService: GraphDataService,
-    private graphConfigurationService: GraphConfigurationService
+    private graphConfigurationService: GraphConfigurationService,
+    private route: ActivatedRoute
   ) {
     // TODO should all this be in ngOnInit?
     combineLatest([
