@@ -28,7 +28,7 @@ export class AppComponent implements OnInit {
   isEditing = false;
   editingIndex: number;
 
-  isUrlEditor = true;
+  isUrlEditor = false;
 
   version: typeof version;
   linkHref: string;
