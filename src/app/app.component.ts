@@ -31,9 +31,9 @@ export class AppComponent {
   version: typeof version;
 
   constructor(
+    public route: ActivatedRoute,
     private graphDataService: GraphDataService,
-    private graphConfigurationService: GraphConfigurationService,
-    private route: ActivatedRoute
+    private graphConfigurationService: GraphConfigurationService
   ) {
     // TODO should all this be in ngOnInit?
     combineLatest([
