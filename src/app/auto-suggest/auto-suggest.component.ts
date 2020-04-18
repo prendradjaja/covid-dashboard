@@ -3,6 +3,7 @@ import * as Fuse from 'fuse.js/dist/fuse.js';
 import { CovidGraphDefinition } from 'src/lib/URLState';
 import { LocationSearchService } from '../location-search.service';
 import URLState from '../../lib/URLState';
+import { ColorService } from '../color.service';
 
 @Component({
   selector: 'auto-suggest',
@@ -17,7 +18,10 @@ export class AutoSuggestComponent implements OnInit {
   @Input() graphDefinitions: CovidGraphDefinition[];
 
   updateGraph: (a: number, b: CovidGraphDefinition) => void;
-  constructor(private locationSearchService: LocationSearchService) {
+  constructor(
+    public colorService: ColorService,
+    private locationSearchService: LocationSearchService
+  ) {
     locationSearchService.locations.subscribe((locations) => {
       this.searchableLocations = locations;
     });

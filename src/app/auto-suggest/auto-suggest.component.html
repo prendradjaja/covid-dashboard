@@ -10,7 +10,10 @@
   <ng-container *ngFor="let suggestion of suggestions">
     <div class="suggestion" (click)="addLocation(suggestion.item)">
       {{ suggestion.item.location }}
-      <span class="source">
+      <span
+        class="source"
+        [style.color]="colorService.getColor(suggestion.item.source.name)"
+      >
         (Source: {{ suggestion.item.source.name }})
       </span>
     </div>
