@@ -12,6 +12,22 @@ export type Series = {
   comments?: string[];
 };
 
+interface Remark {
+  x: number;
+  y: number;
+  offsetY?: number;
+  text: string;
+}
+
+const REMARKS: Remark[] = [
+  {
+    x: 8, // 3/17
+    y: 49,
+    offsetY: 25,
+    text: 'Bay Area shelter-in-place begins',
+  },
+];
+
 @Component({
   selector: 'multi-line-chart',
   templateUrl: './multi-line-chart.component.html',
@@ -233,6 +249,23 @@ export class MultiLineChartComponent implements OnInit {
         .attr('text-anchor', 'start')
         .attr('font-weight', 'bold')
         .text(self.yAxisLabel);
+
+      for (let remark of REMARKS) {
+        const group = svg.append('g');
+        const x = self.xScale(remark.x);
+        const y = self.yScale(remark.y);
+        const offsetY = remark.offsetY || 10;
+        group.append('circle').attr('r', 2.5).attr('cx', x).attr('cy', y);
+
+        group
+          .append('text')
+          .attr('font-family', 'sans-serif')
+          .attr('font-size', 10)
+          .attr('y', y + offsetY)
+          .attr('x', x + 5)
+          .attr('text-anchor', 'start')
+          .text(remark.text);
+      }
 
       svg.call(hover, path);
 
