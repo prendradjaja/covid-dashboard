@@ -131,7 +131,7 @@ export class MultiLineChartComponent implements OnInit {
           'transform',
           `translate(${self.xScale(self.dates[i])},${self.yScale(s.values[i])})`
         );
-        const comment = s.comments ? '— ' + s.comments[i] : '';
+        const comment = s.comments ? ' — ' + s.comments[i] : '';
         dot
           .select('text')
           .text(`${s.name}: ${s.values[i].toLocaleString()}${comment}`);
