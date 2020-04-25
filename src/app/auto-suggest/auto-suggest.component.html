@@ -10,12 +10,9 @@
   <ng-container *ngFor="let suggestion of suggestions">
     <div class="suggestion" (click)="addLocation(suggestion.item)">
       {{ suggestion.item.location }}
-      <a
-        [href]="suggestion.item.source.url"
-        target="_blank"
-        rel="noopener noreferrer"
-        >(Source: {{ suggestion.item.source.name }})</a
-      >
+      <span class="source">
+        (Source: {{ suggestion.item.source.name }})
+      </span>
     </div>
   </ng-container>
 </div>

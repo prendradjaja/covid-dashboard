@@ -2,6 +2,9 @@ import { Component, OnInit, ElementRef, Input } from '@angular/core';
 import * as d3 from 'd3';
 import * as d3Array from 'd3-array';
 import times from 'lodash/times';
+import { AxisScale } from 'src/lib/URLState';
+import { UnreachableCaseError } from 'ts-essentials';
+import { ColorService } from '../color.service';
 
 export type Series = {
   name: string;
@@ -9,44 +12,37 @@ export type Series = {
   comments?: string[];
 };
 
-const VISUALLY_DISTINCT_COLORS = [
-  '#767833',
-  '#6f68d9',
-  '#7ab644',
-  '#b84cb5',
-  '#d0a048',
-  '#57ac74',
-  '#d23d72',
-  '#ca8fd9',
-  '#5e64a9',
-  '#9b4c7d',
-  '#d15133',
-  '#4bbab3',
-  '#67a1db',
-  '#e2869f',
-  '#b25d4a',
-];
-
 @Component({
   selector: 'multi-line-chart',
   templateUrl: './multi-line-chart.component.html',
   styleUrls: ['./multi-line-chart.component.less'],
 })
 export class MultiLineChartComponent implements OnInit {
+  @Input() title: string;
   @Input() yAxisLabel: string;
   @Input() xAxisLabel: string;
   // TODO: fix these bad assumptions:
   // - all the dates are contiguous
   // - all the serieses are of the same length & the same dates
   @Input() data: Series[];
-  @Input() animate: boolean = false;
+  @Input('animate') _animate_ignored: boolean = false; // Temporarily ignoring due to deserializer bug. TODO re-enable
+  animate: boolean = false;
   @Input() xAxisBounds?: [number, number];
   @Input() yAxisBounds?: [number, number];
+  @Input() yAxisScale: AxisScale;
+  @Input() width?: number = 500;
+  @Input() height?: number = 300;
 
   private xScale: d3.ScaleContinuousNumeric<number, number>;
   private yScale: d3.ScaleContinuousNumeric<number, number>;
 
-  constructor(private elementRef: ElementRef) {}
+  private margin = { top: 20, right: 20, bottom: 30, left: 60 };
+  private dates: number[];
+
+  constructor(
+    private elementRef: ElementRef,
+    private colorService: ColorService
+  ) {}
 
   ngOnInit(): void {
     let self = this;
@@ -54,35 +50,23 @@ export class MultiLineChartComponent implements OnInit {
     Line1 FOOBAR	200.6	2000.6	20.6	2.6	2.7
     Line2 BOOFAR	300.7	30.6	3.6	-10.5 2000.4`;
 
-    const width = 800;
-    const height = 600;
+    this.dates = times(
+      Math.max(...this.data.map((v) => v.values.length)),
+      Number
+    );
 
-    const margin = { top: 20, right: 20, bottom: 30, left: 60 };
-
-    const data = {
-      y: this.yAxisLabel,
-      x: this.xAxisLabel,
-      series: this.data,
-      dates: times(Math.max(...this.data.map((v) => v.values.length)), Number),
-    };
-
-    this.yScale = d3
-      .scaleLog()
-      .domain(
-        this.yAxisBounds || [1, d3.max(data.series, (d) => d3.max(d.values))]
-      )
-      .range([height - margin.bottom, margin.top]);
+    this.yScale = this.getYScale();
 
     this.xScale = d3
       .scaleLinear()
-      .domain(this.xAxisBounds || d3.extent(data.dates as Number[]))
-      .range([margin.left, width - margin.right]);
+      .domain(this.xAxisBounds || d3.extent(this.dates as Number[]))
+      .range([this.margin.left, this.width - this.margin.right]);
 
     //console.log(this.xScale.domain(), this.yScale.domain());
 
     const xAxis = (g) =>
       g
-        .attr('transform', `translate(0,${height - margin.bottom})`)
+        .attr('transform', `translate(0,${this.height - this.margin.bottom})`)
         .call(
           d3
             .axisBottom(this.xScale)
@@ -91,7 +75,7 @@ export class MultiLineChartComponent implements OnInit {
         );
 
     const yAxis = (g) =>
-      g.attr('transform', `translate(${margin.left},0)`).call(
+      g.attr('transform', `translate(${this.margin.left},0)`).call(
         d3
           .axisLeft(this.yScale)
           .tickValues(this.getCasesTicks())
@@ -101,7 +85,7 @@ export class MultiLineChartComponent implements OnInit {
     const line = d3
       .line()
       .defined((d) => !isNaN(d as any))
-      .x((d, i) => this.xScale(data.dates[i]))
+      .x((d, i) => this.xScale(this.dates[i]))
       .y((d) => this.yScale(d as any));
 
     function hover(svg, path) {
@@ -134,17 +118,17 @@ export class MultiLineChartComponent implements OnInit {
         d3.event.preventDefault();
         const ym = self.yScale.invert(d3.event.layerY - boundingRect.top);
         const xm = self.xScale.invert(d3.event.layerX - boundingRect.left);
-        const i1 = d3.bisectLeft(data.dates, xm, 1);
+        const i1 = d3.bisectLeft(self.dates, xm, 1);
         const i0 = i1 - 1;
         // @ts-ignore
-        const i = xm - data.dates[i0] > data.dates[i1] - xm ? i1 : i0;
-        const s = (d3Array as any).least(data.series, (d) =>
+        const i = xm - self.dates[i0] > self.dates[i1] - xm ? i1 : i0;
+        const s = (d3Array as any).least(self.data, (d) =>
           Math.abs(Math.log10(d.values[i]) - Math.log10(ym))
         );
         path.filter((d) => d === s).raise();
         dot.attr(
           'transform',
-          `translate(${self.xScale(data.dates[i])},${self.yScale(s.values[i])})`
+          `translate(${self.xScale(self.dates[i])},${self.yScale(s.values[i])})`
         );
         const comment = s.comments ? '— ' + s.comments[i] : '';
         dot
@@ -166,7 +150,9 @@ export class MultiLineChartComponent implements OnInit {
     function makeChart() {
       const svg = d3
         .create('svg')
-        .attr('viewBox', [0, 0, width, height] as any)
+        .attr('viewBox', [0, 0, self.width, self.height] as any)
+        .attr('width', self.width)
+        .attr('height', self.height)
         .style('overflow', 'visible');
 
       svg.append('g').call(xAxis);
@@ -180,24 +166,22 @@ export class MultiLineChartComponent implements OnInit {
         .attr('stroke-linejoin', 'round')
         .attr('stroke-linecap', 'round')
         .selectAll('path')
-        .data(data.series)
+        .data(self.data)
         .join('path')
         .style('mix-blend-mode', 'multiply')
         .attr('d', (d) => line(d.values as any));
 
-      if (self.animate) {
-        // @ts-ignore
-        path._groups[0].forEach((node, index) => {
-          let length = node.getTotalLength();
-          d3.select(node)
-            .attr('stroke-dasharray', length)
-            .attr('stroke-dashoffset', length)
-            .attr('stroke', VISUALLY_DISTINCT_COLORS[index])
-            .transition()
-            .duration(2000)
-            .attr('stroke-dashoffset', 0);
-        });
-      }
+      // @ts-ignore
+      path._groups[0].forEach((node, index) => {
+        let length = node.getTotalLength();
+        d3.select(node)
+          .attr('stroke-dasharray', length)
+          .attr('stroke-dashoffset', length)
+          .attr('stroke', self.colorService.getColor(self.data[index].name))
+          .transition()
+          .duration(self.animate ? 2000 : 0)
+          .attr('stroke-dashoffset', 0);
+      });
 
       // Grid lines
       svg.append('g').call((g) =>
@@ -212,8 +196,8 @@ export class MultiLineChartComponent implements OnInit {
               .join('line')
               .attr('x1', (d) => 0.5 + self.xScale(d))
               .attr('x2', (d) => 0.5 + self.xScale(d))
-              .attr('y1', margin.top)
-              .attr('y2', height - margin.bottom)
+              .attr('y1', self.margin.top)
+              .attr('y2', self.height - self.margin.bottom)
           )
           .call((g) =>
             g
@@ -223,10 +207,32 @@ export class MultiLineChartComponent implements OnInit {
               .join('line')
               .attr('y1', (d) => 0.5 + self.yScale(d))
               .attr('y2', (d) => 0.5 + self.yScale(d))
-              .attr('x1', margin.left)
-              .attr('x2', width - margin.right)
+              .attr('x1', self.margin.left)
+              .attr('x2', self.width - self.margin.right)
           )
       );
+
+      // x axis label
+      svg
+        .append('text')
+        .attr('font-family', 'sans-serif')
+        .attr('font-size', 10)
+        .attr('y', self.height - 40)
+        .attr('x', self.width - 25)
+        .attr('text-anchor', 'end')
+        .attr('font-weight', 'bold')
+        .text(self.xAxisLabel);
+
+      // y axis label
+      svg
+        .append('text')
+        .attr('font-family', 'sans-serif')
+        .attr('font-size', 10)
+        .attr('y', 35)
+        .attr('x', 70)
+        .attr('text-anchor', 'start')
+        .attr('font-weight', 'bold')
+        .text(self.yAxisLabel);
 
       svg.call(hover, path);
 
@@ -248,13 +254,36 @@ export class MultiLineChartComponent implements OnInit {
   }
 
   private getCasesTicks(): number[] {
-    const [min, max] = this.yScale.domain();
-    const result = [];
-    for (let i = 1; i <= max; i *= 10) {
-      if (i >= min) {
-        result.push(i);
+    if (this.yAxisScale === AxisScale.log) {
+      const [min, max] = this.yScale.domain();
+      const result = [];
+      for (let i = 1; i <= max; i *= 10) {
+        if (i >= min) {
+          result.push(i);
+        }
       }
+      return result;
+    } else if (this.yAxisScale === AxisScale.linear) {
+      return this.yScale.ticks();
+    } else {
+      throw new UnreachableCaseError(this.yAxisScale);
     }
-    return result;
+  }
+
+  private getYScale(): d3.ScaleContinuousNumeric<number, number> {
+    let scale: d3.ScaleContinuousNumeric<number, number>;
+    if (this.yAxisScale === AxisScale.linear) {
+      scale = d3.scaleLinear();
+    } else if (this.yAxisScale === AxisScale.log) {
+      scale = d3.scaleLog();
+    } else {
+      throw new UnreachableCaseError(this.yAxisScale);
+    }
+
+    return scale
+      .domain(
+        this.yAxisBounds || [1, d3.max(this.data, (d) => d3.max(d.values))]
+      )
+      .range([this.height - this.margin.bottom, this.margin.top]);
   }
 }

@@ -1,5 +1,5 @@
 import qs from 'qs';
-import { CovidGraphDefinition } from './types';
+import { CovidGraphDefinition, AxisScale } from './types';
 ///////////////////////////
 // URL State Deserializer
 /////////////////////////
@@ -27,8 +27,11 @@ const OPTIONS = {
 };
 
 // Default properties for our covid Graph Definitions
+// TODO Probably don't need two places for defaults (Here and optional params in MultiLineChartComponent)
 const DEFAULT_GRAPH_PROPERTIES = {
-  cutoff: 10,
+  cutoff: 100,
+  animate: false,
+  y_axis_scale: AxisScale.log,
 };
 
 const parseQueryString = (queryString) => qs.parse(queryString, OPTIONS);
