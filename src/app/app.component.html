@@ -1,49 +1,71 @@
-<ng-container *ngIf="!isEditing; else editor">
-  <ng-container *ngFor="let graph of graphs; let i = index">
-    <div class="chart-container">
-      <button
-        class="edit"
-        (click)="startEditing(i)"
-      >
-        Edit
-      </button>
-      <multi-line-chart
-        yAxisLabel="Number of confirmed cases"
-        xAxisLabel="Days since {{ graph.definition.cutoff }} cases"
-        [title]="graph.definition.title"
-        [data]="graph.data"
-        [animate]="graph.definition.animate"
-        [xAxisBounds]="graph.definition.x_axis_bounds"
-        [yAxisBounds]="graph.definition.y_axis_bounds"
-        [yAxisScale]="graph.definition.y_axis_scale"
-      >
-      </multi-line-chart>
-    </div>
+<ng-container *ngIf="!isUrlEditor; else urlEditor">
+  <ng-container *ngIf="!isEditing; else editor">
+    <ng-container *ngFor="let graph of graphs; let i = index">
+      <div class="chart-container">
+<!--        <button-->
+<!--          class="edit"-->
+<!--          (click)="startEditing(i)"-->
+<!--        >-->
+<!--          Edit-->
+<!--        </button>-->
+        <multi-line-chart
+          yAxisLabel="Number of confirmed cases"
+          xAxisLabel="Days since {{ graph.definition.cutoff }} cases"
+          [title]="graph.definition.title"
+          [data]="graph.data"
+          [animate]="graph.definition.animate"
+          [xAxisBounds]="graph.definition.x_axis_bounds"
+          [yAxisBounds]="graph.definition.y_axis_bounds"
+          [yAxisScale]="graph.definition.y_axis_scale"
+        >
+        </multi-line-chart>
+      </div>
+    </ng-container>
   </ng-container>
-</ng-container>
-<ng-template #editor>
-  <div>
-    <button
-      class="back"
-      (click)="stopEditing()"
+  <ng-template #editor>
+    <div>
+      <button
+        class="back"
+        (click)="stopEditing()"
+      >
+        Back
+      </button>
+    </div>
+    <auto-suggest
+      [index]="editingIndex"
+      [graphDefinitions]="allGraphDefinitions"
+    ></auto-suggest>
+    <multi-line-chart
+      yAxisLabel="Number of confirmed cases"
+      xAxisLabel="Days since {{ graphs[editingIndex].definition.cutoff }} cases"
+      [title]="graphs[editingIndex].definition.title"
+      [data]="graphs[editingIndex].data"
+      [xAxisBounds]="graphs[editingIndex].definition.x_axis_bounds"
+      [yAxisBounds]="graphs[editingIndex].definition.y_axis_bounds"
+      [yAxisScale]="graphs[editingIndex].definition.y_axis_scale"
     >
-      Back
-    </button>
+    </multi-line-chart>
+  </ng-template>
+</ng-container>
+<ng-template #urlEditor>
+  <h2>URL Editor</h2>
+  <textarea
+    id="urlEditorTextarea"
+    (keyup)="updateLink()"
+    (keydown)="indent($event)"
+    rows=20
+    style="width: 400px"
+  >https://personal-covid-dashboard.web.app/
+#title=Alameda County (log scale)
+  &locations=
+    Alameda County  California  United States,
+  &x_axis_bounds=0,56
+  &y_axis_bounds=1,1e5</textarea>
+  <div>
+    <a [href]="linkHref"
+        target="mywindow">Open
+    </a>
   </div>
-  <auto-suggest
-    [index]="editingIndex"
-    [graphDefinitions]="allGraphDefinitions"
-  ></auto-suggest>
-  <multi-line-chart
-    yAxisLabel="Number of confirmed cases"
-    xAxisLabel="Days since {{ graphs[editingIndex].definition.cutoff }} cases"
-    [title]="graphs[editingIndex].definition.title"
-    [data]="graphs[editingIndex].data"
-    [xAxisBounds]="graphs[editingIndex].definition.x_axis_bounds"
-    [yAxisBounds]="graphs[editingIndex].definition.y_axis_bounds"
-    [yAxisScale]="graphs[editingIndex].definition.y_axis_scale"
-  >
-  </multi-line-chart>
 </ng-template>
 
 <footer>
@@ -72,5 +94,7 @@
       target="_blank"
       rel="noopener noreferrer"
     >Hosted</a>
+    &mdash;
+    <button (click)="toggleUrlEditor()">URL Editor</button>
   </span>
 </footer>
