@@ -88,7 +88,7 @@ const fetchGraphData = (graphDefinitions: CovidGraphDefinition[]) =>
                 return {
                   name: location,
                   values: locationData.map((l) => parseInt(l[data_type], 10)),
-                  comments: locationData.map((l) => l.date.toISOString()),
+                  comments: locationData.map((l) => l.date.toDateString()),
                 };
               } catch (e) {
                 console.error(`Location ${location} is invalid`);

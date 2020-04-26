@@ -39,6 +39,8 @@ export class MultiLineChartComponent implements OnInit {
   private margin = { top: 20, right: 20, bottom: 30, left: 60 };
   private dates: number[];
 
+  private svg: SVGSVGElement;
+
   constructor(
     private elementRef: ElementRef,
     private colorService: ColorService
@@ -113,8 +115,7 @@ export class MultiLineChartComponent implements OnInit {
         .attr('y', -8);
 
       function moved() {
-        const boundingRect = (self.elementRef
-          .nativeElement as Element).getBoundingClientRect();
+        const boundingRect = self.svg.getBoundingClientRect();
         d3.event.preventDefault();
         const ym = self.yScale.invert(d3.event.layerY - boundingRect.top);
         const xm = self.xScale.invert(d3.event.layerX - boundingRect.left);
@@ -130,7 +131,7 @@ export class MultiLineChartComponent implements OnInit {
           'transform',
           `translate(${self.xScale(self.dates[i])},${self.yScale(s.values[i])})`
         );
-        const comment = s.comments ? '— ' + s.comments[i] : '';
+        const comment = s.comments ? ' — ' + s.comments[i] : '';
         dot
           .select('text')
           .text(`${s.name}: ${s.values[i].toLocaleString()}${comment}`);
@@ -239,7 +240,9 @@ export class MultiLineChartComponent implements OnInit {
       return svg.node();
     }
 
-    this.elementRef.nativeElement.appendChild(makeChart());
+    this.svg = makeChart();
+
+    this.elementRef.nativeElement.appendChild(this.svg);
   }
 
   private getDayTicks(): number[] {
