@@ -86,7 +86,7 @@ const fetchGraphData = (graphDefinitions: CovidGraphDefinition[]) =>
                     parseTimeseriesData(data, data_type, cutoff)
                   );
                 return {
-                  name: location,
+                  name: location.split(',')[0],
                   values: locationData.map((l) => parseInt(l[data_type], 10)),
                   comments: locationData.map((l) => l.date.toISOString()),
                 };
